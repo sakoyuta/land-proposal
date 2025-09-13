@@ -1,217 +1,992 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Viewing Reservation Table</title>
+    <title>オーナー様邸 完成見学会のご案内</title>
+    <!-- OGP (Open Graph Protocol) tags for social sharing -->
+    <meta property="og:title" content="オーナー様邸 完成見学会のご案内">
+    <meta property="og:description" content="実際に建てられたお住まいを、オーナー様のご厚意で特別公開。理想の家づくりのヒントがここにあります。">
+    <meta property="og:image" content="https://placehold.co/1200x630/4f46e5/ffffff?text=オーナー様邸+完成見学会">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <!-- End OGP tags -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        #addOwnerModal > div, #customerModal > div {
+            max-height: 90vh;
         }
-        
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
+        .admin-only {
+            display: flex;
         }
-        
-        .reservation-table {
+        .calendar {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
         }
-        
-        .reservation-table th,
-        .reservation-table td {
-            border: 1px solid #ddd;
-            padding: 12px;
+        .calendar th, .calendar td {
             text-align: center;
+            padding: 0.75rem 0.25rem;
+            border: 1px solid #e5e7eb;
         }
-        
-        .reservation-table th {
-            background-color: #4CAF50;
+        .calendar th {
+            background-color: #f9fafb;
+            font-size: 0.875rem;
+        }
+        .calendar td {
+            cursor: pointer;
+            border-radius: 9999px;
+        }
+        .calendar td.today {
+            background-color: #fef3c7;
+            font-weight: bold;
+        }
+        .calendar td.selected {
+            background-color: #f59e0b;
             color: white;
-            font-weight: bold;
         }
-        
-        .reservation-table tr:nth-child(even) {
-            background-color: #f9f9f9;
+         .calendar td:hover:not(.empty) {
+            background-color: #fde68a;
         }
-        
-        .reservation-table tr:hover {
-            background-color: #f0f8ff;
-        }
-        
-        .status-available {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-        
-        .status-reserved {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-        
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-        
-        .filter-section {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-        }
-        
-        .filter-section label {
-            margin-right: 10px;
-            font-weight: bold;
-        }
-        
-        .filter-section input,
-        .filter-section select {
-            margin-right: 15px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
+        .filter-btn.active {
+            background-color: #f59e0b;
+            color: white;
+            border-color: #f59e0b;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>予約テーブル表示システム</h1>
-        
-        <div class="filter-section">
-            <label for="dateFilter">日付:</label>
-            <input type="date" id="dateFilter" onchange="filterReservations()">
-            
-            <label for="statusFilter">ステータス:</label>
-            <select id="statusFilter" onchange="filterReservations()">
-                <option value="">すべて</option>
-                <option value="available">空き</option>
-                <option value="reserved">予約済み</option>
-                <option value="pending">保留中</option>
-            </select>
-            
-            <label for="tableFilter">テーブル番号:</label>
-            <input type="text" id="tableFilter" placeholder="テーブル番号で検索" onkeyup="filterReservations()">
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Header -->
+    <header id="headerContent" class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-900">Your Home Inc.</h1>
+            <nav>
+                <a href="#tours" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">施工事例</a>
+                <a href="#about" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">イベントについて</a>
+                 <a href="#customers" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">お客様リスト</a>
+            </nav>
         </div>
-        
-        <table class="reservation-table" id="reservationTable">
-            <thead>
-                <tr>
-                    <th>テーブル番号</th>
-                    <th>日付</th>
-                    <th>時間</th>
-                    <th>お客様名</th>
-                    <th>人数</th>
-                    <th>ステータス</th>
-                    <th>備考</th>
-                </tr>
-            </thead>
-            <tbody id="reservationData">
-                <tr>
-                    <td>T001</td>
-                    <td>2025-09-13</td>
-                    <td>18:00-20:00</td>
-                    <td>田中様</td>
-                    <td>4名</td>
-                    <td><span class="status-reserved">予約済み</span></td>
-                    <td>誕生日のお祝い</td>
-                </tr>
-                <tr>
-                    <td>T002</td>
-                    <td>2025-09-13</td>
-                    <td>19:00-21:00</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td><span class="status-available">空き</span></td>
-                    <td>-</td>
-                </tr>
-                <tr>
-                    <td>T003</td>
-                    <td>2025-09-13</td>
-                    <td>18:30-20:30</td>
-                    <td>佐藤様</td>
-                    <td>2名</td>
-                    <td><span class="status-pending">保留中</span></td>
-                    <td>要確認</td>
-                </tr>
-                <tr>
-                    <td>T004</td>
-                    <td>2025-09-14</td>
-                    <td>17:00-19:00</td>
-                    <td>鈴木様</td>
-                    <td>6名</td>
-                    <td><span class="status-reserved">予約済み</span></td>
-                    <td>歓送迎会</td>
-                </tr>
-                <tr>
-                    <td>T005</td>
-                    <td>2025-09-14</td>
-                    <td>20:00-22:00</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td><span class="status-available">空き</span></td>
-                    <td>-</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="mainContent">
+        <section class="relative h-[60vh] bg-cover bg-center" style="background-image: url('https://placehold.co/1600x900/e2e8f0/334155?text=Beautiful+Modern+Home');">
+            <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+            <div class="relative container mx-auto px-6 h-full flex flex-col justify-center items-center text-center text-white">
+                <h2 class="text-4xl md:text-6xl font-bold leading-tight mb-4">オーナー様邸 完成見学会</h2>
+                <p class="text-lg md:text-xl max-w-2xl">実際に建てられたお住まいを、オーナー様のご厚意で特別公開。<br>理想の家づくりのヒントがここにあります。</p>
+            </div>
+        </section>
+
+        <!-- About the Event -->
+        <section id="about" class="py-16 sm:py-24 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h3 class="text-3xl font-bold text-gray-900 mb-4">なぜ、完成見学会が家づくりの参考になるの？</h3>
+                <p class="max-w-3xl mx-auto text-gray-600 leading-relaxed">
+                    モデルハウスでは体感できない、リアルな暮らしのアイデアや工夫が満載です。
+                    間取りの工夫、素材の質感、収納のアイデアなど、実際に見て、触れて、感じていただくことで、
+                    ご自身の家づくりがより具体的になります。オーナー様の生の声を聞ける貴重な機会でもあります。
+                </p>
+            </div>
+        </section>
+
+        <!-- Participation Conditions -->
+        <section id="conditions" class="py-16 sm:py-24 bg-gray-100">
+            <div class="container mx-auto px-6">
+                <div class="max-w-3xl mx-auto text-center">
+                    <h3 class="text-3xl font-bold text-gray-900 mb-8">ご見学の参加条件</h3>
+                    <div class="bg-white rounded-lg shadow-lg p-8 border border-gray-200 text-left">
+                        <ul class="space-y-4 text-gray-700">
+                            <li class="flex items-start">
+                                <span class="bg-amber-500 text-white rounded-full h-6 w-6 text-sm flex items-center justify-center mr-4 flex-shrink-0">1</span>
+                                <span>事前審査が通っていること（エビデンス必須）</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-amber-500 text-white rounded-full h-6 w-6 text-sm flex items-center justify-center mr-4 flex-shrink-0">2</span>
+                                <span>Gハウスのモデルハウス見学説明会へ参加済</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-amber-500 text-white rounded-full h-6 w-6 text-sm flex items-center justify-center mr-4 flex-shrink-0">3</span>
+                                <span>見学会後、営業担当と個別商談を一回以上実施していること</span>
+                            </li>
+                        </ul>
+                        <p class="mt-8 pt-6 border-t border-gray-200 text-base text-red-700 font-semibold text-center">
+                            上記、条件を満たしていないお客様については、<br class="sm:hidden">個別オーナー様見学の実施を不可とします。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tour Schedule -->
+        <section id="schedule" class="py-16 sm:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="max-w-3xl mx-auto text-center">
+                    <h3 class="text-3xl font-bold text-gray-900 mb-8">見学のスケジュール</h3>
+                    <div class="bg-gray-50 rounded-lg shadow-inner p-8 border text-left">
+                        <p class="text-center text-gray-600 mb-6 text-sm">※予約時間の開始10分前に到着してオーナー様にご挨拶（手土産）<br>見学時間は原則60分とします。</p>
+                        <ol class="relative border-l border-gray-200 space-y-8 ml-4">
+                            <li class="ml-6">
+                                <span class="absolute flex items-center justify-center w-6 h-6 bg-amber-200 rounded-full -left-3 ring-8 ring-white">
+                                    <svg class="w-3 h-3 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.707-10.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414l-3-3z" clip-rule="evenodd"></path></svg>
+                                </span>
+                                <h4 class="font-semibold text-gray-800">１，開始～30分：お家の見学</h4>
+                                <p class="text-sm text-gray-600">お家の中をご自由にご覧いただけます。<br><small class="text-red-600">※オーナー様のプライベートな空間など、一部ご覧いただけない場所がございますので、予めご了承ください。</small></p>
+                            </li>
+                            <li class="ml-6">
+                                <span class="absolute flex items-center justify-center w-6 h-6 bg-amber-200 rounded-full -left-3 ring-8 ring-white">
+                                    <svg class="w-3 h-3 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                                </span>
+                                <h4 class="font-semibold text-gray-800">２，30分～60分：質疑応答</h4>
+                                <p class="text-sm text-gray-600">オーナー様や担当者へ直接ご質問いただけます。</p>
+                            </li>
+                            <li class="ml-6">
+                                <span class="absolute flex items-center justify-center w-6 h-6 bg-amber-200 rounded-full -left-3 ring-8 ring-white">
+                                    <svg class="w-3 h-3 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                                </span>
+                                <h4 class="font-semibold text-gray-800">３，お礼して解散</h4>
+                                <p class="text-sm text-gray-600">見学会終了後、現地解散となります。</p>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Case Studies List -->
+        <section id="tours" class="py-16 sm:py-24">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-8 gap-4">
+                    <h3 class="text-3xl font-bold text-gray-900">オーナー様邸 実例紹介</h3>
+                    <button id="addOwnerBtn" class="admin-only bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition-colors self-start sm:self-center">
+                        オーナー様情報を追加
+                    </button>
+                </div>
+                 <!-- Filter Controls -->
+                <div id="filterControls" class="flex flex-wrap gap-2 mb-8">
+                    <button class="filter-btn active px-4 py-2 text-sm font-medium border rounded-md" data-filter="all">すべて表示</button>
+                    <button class="filter-btn px-4 py-2 text-sm font-medium border rounded-md" data-filter="100">100㎡以下</button>
+                    <button class="filter-btn px-4 py-2 text-sm font-medium border rounded-md" data-filter="130">130㎡以下</button>
+                    <button class="filter-btn px-4 py-2 text-sm font-medium border rounded-md" data-filter="150">150㎡以下</button>
+                    <button class="filter-btn px-4 py-2 text-sm font-medium border rounded-md" data-filter="151">151㎡以上</button>
+                </div>
+                <div id="ownerList" class="space-y-8 min-h-[200px]">
+                    <!-- Owner cards will be dynamically inserted here by JavaScript -->
+                </div>
+                <!-- Pagination Controls -->
+                <div id="paginationControls" class="mt-12 flex justify-center items-center space-x-2">
+                    <!-- Pagination buttons will be inserted here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Customer List -->
+        <section id="customers" class="py-16 sm:py-24 bg-white">
+             <div class="container mx-auto px-6">
+                <h3 class="text-3xl font-bold text-gray-900 mb-8">ご案内お客様リスト</h3>
+                 <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-600">見学物件</th>
+                                <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-600">見学日時</th>
+                                <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-600">お客様名</th>
+                                <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-600">営業担当</th>
+                                <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-600">ステータス</th>
+                                <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-600">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerListBody">
+                            <!-- Customer rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+             </div>
+        </section>
+
+        <!-- Visits Chart -->
+        <section id="chart" class="py-16 sm:py-24 bg-gray-50">
+            <div class="container mx-auto px-6">
+                 <h3 class="text-3xl font-bold text-gray-900 mb-8 text-center">見学回数レポート</h3>
+                 <div class="bg-white p-4 rounded-lg shadow-lg">
+                    <canvas id="visitsChart"></canvas>
+                 </div>
+            </div>
+        </section>
+
+    </main>
     
-    <script>
-        function filterReservations() {
-            const dateFilter = document.getElementById('dateFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
-            const tableFilter = document.getElementById('tableFilter').value.toLowerCase();
-            const tbody = document.getElementById('reservationData');
-            const rows = tbody.getElementsByTagName('tr');
-            
-            for (let i = 0; i < rows.length; i++) {
-                const row = rows[i];
-                const tableNumber = row.cells[0].textContent.toLowerCase();
-                const date = row.cells[1].textContent;
-                const statusElement = row.cells[5].querySelector('span');
-                const status = statusElement ? statusElement.className.split('-')[1] : '';
-                
-                let showRow = true;
-                
-                if (dateFilter && date !== dateFilter) {
-                    showRow = false;
-                }
-                
-                if (statusFilter && status !== statusFilter) {
-                    showRow = false;
-                }
-                
-                if (tableFilter && !tableNumber.includes(tableFilter)) {
-                    showRow = false;
-                }
-                
-                row.style.display = showRow ? '' : 'none';
-            }
-        }
+    <!-- Footer -->
+    <footer id="footerContent" class="bg-gray-800 text-white">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>&copy; 2025 Your Home Inc. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Add/Edit Owner Modal -->
+    <div id="addOwnerModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl m-4 overflow-y-auto">
+            <form id="addOwnerForm" class="p-6">
+                <h3 id="modalTitle" class="text-2xl font-bold mb-6">新しいオーナー様情報を追加</h3>
+                <div class="space-y-4">
+                    <input type="text" name="title" placeholder="邸宅名【キャッチコピー】" class="w-full p-2 border rounded" required>
+                    <input type="text" name="short_desc" placeholder="短い説明文" class="w-full p-2 border rounded">
+                    <textarea name="long_desc" placeholder="詳細な説明文" rows="4" class="w-full p-2 border rounded"></textarea>
+                    <hr>
+                    <h4 class="font-semibold">お客様情報</h4>
+                    <input type="text" name="owner_name" placeholder="施主氏名" class="w-full p-2 border rounded">
+                    <input type="text" name="address" placeholder="現場住所" class="w-full p-2 border rounded">
+                    <input type="email" name="email" placeholder="Eメール" class="w-full p-2 border rounded">
+                    <input type="tel" name="phone" placeholder="携帯番号" class="w-full p-2 border rounded">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                         <input type="number" step="0.01" name="area_1f" placeholder="1階床面積(㎡)" class="w-full p-2 border rounded">
+                         <input type="number" step="0.01" name="area_2f" placeholder="2階床面積(㎡)" class="w-full p-2 border rounded">
+                         <input type="number" step="0.01" name="area_3f" placeholder="3階床面積(㎡)" class="w-full p-2 border rounded">
+                         <input type="number" step="0.01" name="area_total" placeholder="延べ床面積(㎡)" class="w-full p-2 border rounded">
+                    </div>
+                     <hr>
+                     <h4 class="font-semibold">YouTube URL</h4>
+                     <input type="url" name="youtube_url" placeholder="https://www.youtube.com/watch?v=..." class="w-full p-2 border rounded">
+                     <hr>
+                    <h4 class="font-semibold">図面・現場写真</h4>
+                     <div class="space-y-3">
+                        <div>
+                            <label for="file_drawing" class="text-sm font-medium text-gray-700">図面 (PDF, PNG, JPG)</label>
+                            <input type="file" name="drawing" id="file_drawing" accept=".pdf,.png,.jpg,.jpeg" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+                            <span id="file_drawing_current" class="text-xs text-gray-500 mt-1 block"></span>
+                        </div>
+                        <div>
+                            <label for="file_photo" class="text-sm font-medium text-gray-700">現場写真 (PNG, JPG)</label>
+                            <input type="file" name="photo" id="file_photo" accept=".png,.jpg,.jpeg" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+                            <span id="file_photo_current" class="text-xs text-gray-500 mt-1 block"></span>
+                        </div>
+                     </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-4">
+                    <button type="button" id="cancelAddOwner" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">キャンセル</button>
+                    <button type="submit" id="saveOwnerBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">保存する</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+     <!-- Add Customer Modal -->
+    <div id="customerModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6">
+            <h3 id="customerModalTitle" class="text-xl font-bold mb-4">お客様情報の入力</h3>
+            <form id="customerForm">
+                <div class="space-y-4">
+                    <div>
+                        <label for="customerName" class="block text-sm font-medium text-gray-700">お客様名 フルネーム</label>
+                        <input type="text" id="customerName" placeholder="例：山田 太郎" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label for="salesRep" class="block text-sm font-medium text-gray-700">営業担当</label>
+                        <input type="text" id="salesRep" placeholder="例：鈴木 一郎" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500">
+                    </div>
+                </div>
+                 <div class="mt-6 flex justify-end space-x-4">
+                    <button type="button" id="cancelCustomer" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">キャンセル</button>
+                    <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded">予約を確定</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Alert/Confirm Modal -->
+    <div id="customModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 text-center">
+            <h3 id="customModalTitle" class="text-lg font-bold mb-4">確認</h3>
+            <p id="customModalMessage" class="mb-6">この操作を続けてもよろしいですか？</p>
+            <div id="customModalButtons" class="flex justify-center space-x-4">
+                <button id="customModalCancel" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded">キャンセル</button>
+                <button id="customModalConfirm" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded">実行</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <span id="closeModal" class="absolute top-4 right-6 text-white text-4xl font-bold cursor-pointer">&times;</span>
+        <img id="modalImage" src="" alt="拡大表示" class="max-w-[90vw] max-h-[90vh] rounded-md">
+    </div>
+
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, setLogLevel, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
         
-        // 今日の日付をデフォルトに設定
-        document.getElementById('dateFilter').value = new Date().toISOString().split('T')[0];
+        document.addEventListener('DOMContentLoaded', async function() {
+            const ownerListContainer = document.getElementById('ownerList');
+            const addOwnerModal = document.getElementById('addOwnerModal');
+            const addOwnerForm = document.getElementById('addOwnerForm');
+            const modalTitle = document.getElementById('modalTitle');
+            const paginationControls = document.getElementById('paginationControls');
+            const filterControls = document.getElementById('filterControls');
+            const customerListBody = document.getElementById('customerListBody');
+            
+            // --- Custom Modal Logic ---
+            const customModal = document.getElementById('customModal');
+            const customerModal = document.getElementById('customerModal');
+            const customerForm = document.getElementById('customerForm');
+
+            const showModal = (title, message, type = 'confirm') => {
+                return new Promise((resolve) => {
+                    const customModalTitle = document.getElementById('customModalTitle');
+                    const customModalMessage = document.getElementById('customModalMessage');
+                    const customModalConfirm = document.getElementById('customModalConfirm');
+                    const customModalCancel = document.getElementById('customModalCancel');
+
+                    customModalTitle.textContent = title;
+                    customModalMessage.innerHTML = message.replace(/\n/g, '<br>');
+                    
+                    customModalCancel.classList.toggle('hidden', type === 'alert');
+                    customModalConfirm.textContent = type === 'alert' ? 'OK' : '実行';
+                    customModalConfirm.classList.toggle('bg-red-600', type !== 'alert');
+                    customModalConfirm.classList.toggle('hover:bg-red-700', type !== 'alert');
+                    customModalConfirm.classList.toggle('bg-amber-600', type === 'alert');
+                    customModalConfirm.classList.toggle('hover:bg-amber-700', type === 'alert');
+
+                    customModal.classList.remove('hidden');
+                    customModal.classList.add('flex');
+
+                    customModalConfirm.onclick = () => { customModal.classList.add('hidden'); resolve(true); };
+                    customModalCancel.onclick = () => { customModal.classList.add('hidden'); resolve(false); };
+                });
+            };
+
+            window.handleIframeLoad = function(iframe) {
+                const details = iframe.closest('.client-details');
+                if (details && details.style.maxHeight && details.style.maxHeight !== '0px') {
+                    details.style.maxHeight = details.scrollHeight + "px";
+                }
+            };
+
+            // --- Firebase Setup ---
+            let db, auth, storage, ownersCollectionRef, customersCollectionRef;
+            let allOwnersData = [];
+            let filteredOwnersData = [];
+            let customersData = [];
+            let visitsChartInstance = null;
+            let currentPage = 1;
+            let currentFilter = 'all';
+            const ITEMS_PER_PAGE = 10;
+
+            Chart.register(ChartDataLabels);
+
+            try {
+                if (typeof __firebase_config === 'undefined' || !__firebase_config) throw new Error('Firebase config is missing.');
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                storage = getStorage(app);
+                setLogLevel('debug');
+
+                await (typeof __initial_auth_token !== 'undefined' && __initial_auth_token ? signInWithCustomToken(auth, __initial_auth_token) : signInAnonymously(auth));
+
+                ownersCollectionRef = collection(db, `/artifacts/${appId}/public/data/owners`);
+                customersCollectionRef = collection(db, `/artifacts/${appId}/public/data/customers`);
+
+                const initialCheck = await getDocs(ownersCollectionRef);
+                if (initialCheck.empty) {
+                    console.log("Database is empty, adding initial data.");
+                     const initialOwners = [
+                         { createdAt: Date.now(), title: "谷さま邸【Placeholder Title】", short_desc: "", long_desc: "", owner_name: "谷 康司 様", address: "〒576-0052 大阪府交野市私部3丁目10番14号", email: "shi0ri_0822@yahoo.co.jp", phone: "080-2482-5294", area_1f: "73.70", area_2f: "43.88", area_total: "117.58", youtube_url: "", gallery: { drawing: '', photo: '' } },
+                         { createdAt: Date.now() - 1000, title: "太田さま邸【Placeholder Title】", short_desc: "", long_desc: "", owner_name: "太田 純貴 様", address: "〒586-0043 大阪府河内長野市清見台三丁目8番19号", email: "misuzu28@yahoo.com", phone: "080-5334-0586", area_1f: "67.76", area_2f: "41.40", area_total: "109.16", youtube_url: "", gallery: { drawing: '', photo: '' } },
+                         { createdAt: Date.now() - 2000, title: "澤﨑さま邸【3階建てビルトインガレージのある暮らし】", short_desc: "都心部で叶える、デザインと実用性を両立した住まい", long_desc: "", owner_name: "澤﨑 和起 様", address: "〒571-0015 大阪府門真市三ツ島五丁目17番40号", email: "whatsn555@gmail.com", phone: "080-4231-1802", area_1f: "27.58", area_2f: "44.31", area_3f: "41.73", area_total: "124.79", youtube_url: "", gallery: { drawing: '', photo: '' } },
+                         { createdAt: Date.now() - 3000, title: "荒川さま邸【Placeholder Title】", owner_name: "荒川 達彌・荒川 あやめ 様", address: "〒567-0048 大阪府茨木市北春日丘四丁目11番10号", email: "arakawa.1989@gmail.com", phone: "080-1784-1398", area_1f: "65.36", area_2f: "42.64", area_total: "108.00", youtube_url: "", gallery: { drawing: '', photo: '' } },
+                         { createdAt: Date.now() - 4000, title: "山本さま邸【Placeholder Title】", owner_name: "山本 真 様", address: "〒560-0002 大阪府豊中市緑丘三丁目21番17の1号", email: "akari.t19950502@gmail.com", phone: "090-8148-3181", area_1f: "62.83", area_2f: "49.70", area_total: "112.53", youtube_url: "", gallery: { drawing: '', photo: '' } },
+                         { createdAt: Date.now() - 5000, title: "小池さま邸【お家にサウナを実現。趣味を満喫できる最高の暮らし】", short_desc: "趣味がいつでもできる時間を気にしない暮らし", long_desc: "家事動線が良いのは当たり前。その先にある、大切な家族（ねこちゃん）と過ごす時間や趣味の時間を大切にし、心にゆとりが生まれる快適な暮らしを実現しました。旗竿地という条件を活かして費用を抑えつつ、サウナをはじめ、やりたいことをたくさん詰め込んだ理想のお家です。", owner_name: "小池 良幸 様", address: "〒572-0016 大阪府寝屋川市国松町3番35-1号", email: "88koike88@gmail.com", phone: "080-4018-0090", area_1f: "64.77", area_2f: "41.81", area_total: "106.58", youtube_url: "", gallery: { drawing: '', photo: '' } },
+                         { createdAt: Date.now() - 6000, title: "浅井さま邸【大阪市内に建つ、開放的な2階リビングのお家】", short_desc: "住宅密集地でも目線を気にせずプライバシーの守られている空間", long_desc: "住宅密集地ではプライバシーを気にするあまり閉鎖的な空間になりがちですが、窓や建物の配置を工夫し、巧みに死角を利用することで、開放感のあるお家を実現しました。2階リビングのデメリットである動線にも配慮し、階段の近くにキッチンと収納を設けることで、上下階の移動を極限まで減らした間取りとなっています。", owner_name: "浅井 公輔 様", address: "〒536-0013 大阪府大阪市城東区鴫野東3丁目21番1号", email: "rad.koo213.crif@gmail.com", phone: "090-5064-5897", area_1f: "59.00", area_2f: "64.38", area_total: "123.38", youtube_url: "", gallery: { drawing: '', photo: '' } },
+                         { createdAt: Date.now() - 7000, title: "榎本・山根さま邸【デザイン×性能全てに特化した28坪の美】", short_desc: "緻密な計画でデザインされた美を、高性能な住宅で。", long_desc: "照明や窓の配置に至るまで全てが緻密に計画されたデザインは、美しいだけでなく、考え抜かれた動線によって日々の暮らしのストレスを削減します。28坪とは思えない巧みな空間設計と、研ぎ澄まされた線の美しさをご体感ください。「30坪は必要」というのは思い込みかもしれません。将来の暮らしは、計画次第で大きく変わることを教えてくれるお家です。", owner_name: "榎本 翔大・山根 敬一 様", address: "〒574-0011 大阪府大東市北条三丁目3番3号", email: "se.1993.0112@gmail.com", phone: "080-1499-6899", area_1f: "56.28", area_2f: "38.47", area_total: "94.75", youtube_url: "", gallery: { drawing: '', photo: '' } }
+                    ];
+                    for (const ownerData of initialOwners) await addDoc(ownersCollectionRef, ownerData);
+                }
+                
+                onSnapshot(ownersCollectionRef, (snapshot) => {
+                    allOwnersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    applyFilterAndSort();
+                    renderOwnerList();
+                    renderVisitsChart(); 
+                });
+
+                 onSnapshot(customersCollectionRef, (snapshot) => {
+                    customersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderCustomerList();
+                    renderVisitsChart();
+                    document.querySelectorAll('.client-card.is-open .calendar-container').forEach(container => {
+                        const ownerId = container.dataset.ownerId;
+                        const selectedDateCell = container.querySelector('td.selected');
+                        if (selectedDateCell) {
+                           showTimeSlots(ownerId, selectedDateCell.dataset.date);
+                        }
+                    });
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                await showModal('エラー', 'データベースの初期化に失敗しました。ページをリロードしてください。', 'alert');
+            }
+
+            const applyFilterAndSort = () => {
+                let tempOwners = [...allOwnersData];
+                if(currentFilter !== 'all') {
+                     tempOwners = tempOwners.filter(owner => {
+                        const area = parseFloat(owner.area_total) || 0;
+                        if (currentFilter === '100') return area <= 100;
+                        if (currentFilter === '130') return area > 100 && area <= 130;
+                        if (currentFilter === '150') return area > 130 && area <= 150;
+                        if (currentFilter === '151') return area >= 151;
+                        return true;
+                     });
+                }
+                tempOwners.sort((a, b) => (parseFloat(a.area_total) || 0) - (parseFloat(b.area_total) || 0));
+                filteredOwnersData = tempOwners;
+            };
+
+            const getYouTubeEmbedUrl = (url) => {
+                if (!url) return null;
+                try {
+                    const urlObj = new URL(url);
+                    const videoId = urlObj.hostname === 'youtu.be' ? urlObj.pathname.slice(1) : urlObj.searchParams.get('v');
+                    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+                } catch (e) { return null; }
+            };
+
+            const isImageUrl = (url) => {
+                if (!url || typeof url !== 'string') return false;
+                return /\.(jpeg|jpg|gif|png)(\?.*)?$/i.test(url);
+            }
+
+            const createOwnerCardHTML = (owner) => {
+                let fileHTML = '';
+                const { drawing, photo } = owner.gallery || {};
+                
+                if (drawing) {
+                    if(isImageUrl(drawing)) {
+                        fileHTML += `<h6 class="text-sm font-semibold text-gray-700 mb-1">図面</h6><div><img src="${drawing}" class="rounded-md border max-w-xs cursor-pointer" alt="図面" onclick="showImageModal('${drawing}')"></div>`;
+                    } else {
+                        fileHTML += `<div><a href="${drawing}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-amber-700 hover:underline">📄 図面を見る</a></div>`;
+                    }
+                }
+                if (photo) {
+                    if(isImageUrl(photo)) {
+                        fileHTML += `<h6 class="text-sm font-semibold text-gray-700 mt-4 mb-1">現場写真</h6><div class="mt-2"><img src="${photo}" class="rounded-md border max-w-xs cursor-pointer" alt="現場写真" onclick="showImageModal('${photo}')"></div>`;
+                    } else {
+                        fileHTML += `<div class="mt-2"><a href="${photo}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-amber-700 hover:underline">📄 現場写真を見る</a></div>`;
+                    }
+                }
+
+
+                const youtubeHTML = getYouTubeEmbedUrl(owner.youtube_url) ? `
+                    <h5 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4 mt-6">紹介動画</h5>
+                    <div class="w-full h-[560px] rounded-md shadow-lg overflow-hidden">
+                        <iframe src="${getYouTubeEmbedUrl(owner.youtube_url)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full" onload="window.handleIframeLoad(this)"></iframe>
+                    </div>` : '';
+
+                return `
+                <div class="client-card bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300" data-id="${owner.id}">
+                    <div class="client-card-header p-6 cursor-pointer flex justify-between items-center hover:bg-gray-50">
+                        <div class="flex-grow">
+                            <h4 class="text-xl font-bold text-gray-900 mb-2">${owner.title || '名称未設定'}</h4>
+                            <p class="text-gray-600">${owner.short_desc || ''}</p>
+                        </div>
+                        <div class="flex-shrink-0 ml-4 flex items-center space-x-2">
+                            <div class="admin-only items-center space-x-2">
+                                 <button class="edit-btn p-2 rounded-full hover:bg-gray-200" data-doc-id="${owner.id}"><svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L16.732 3.732z"></path></svg></button>
+                                 <button class="delete-btn p-2 rounded-full hover:bg-gray-200" data-doc-id="${owner.id}"><svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                            </div>
+                             <svg class="accordion-icon w-6 h-6 text-gray-500 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                    <div class="client-details max-h-0 overflow-hidden transition-all duration-700 ease-in-out">
+                        <div class="px-6 pb-6 border-t">
+                            <p class="text-gray-700 my-4 leading-relaxed">${owner.long_desc || ''}</p>
+                            <div class="bg-gray-50 p-4 rounded-md mb-4">
+                                <h5 class="font-semibold text-gray-800 mb-2">お客様情報</h5>
+                                <ul class="text-gray-600 text-sm space-y-1">
+                                    ${owner.owner_name ? `<li><strong>施主氏名:</strong> ${owner.owner_name}</li>` : ''}
+                                    ${owner.address ? `<li><strong>現場住所:</strong> ${owner.address}</li>` : ''}
+                                    ${owner.email ? `<li><strong>Eメール:</strong> ${owner.email}</li>` : ''}
+                                    ${owner.phone ? `<li><strong>携帯番号:</strong> ${owner.phone}</li>` : ''}
+                                    <li class="pt-2 border-t mt-2">
+                                        ${owner.area_1f ? `<strong>1階床面積:</strong> ${owner.area_1f}㎡<br>` : ''}
+                                        ${owner.area_2f ? `<strong>2階床面積:</strong> ${owner.area_2f}㎡<br>` : ''}
+                                        ${owner.area_3f ? `<strong>3階床面積:</strong> ${owner.area_3f}㎡<br>` : ''}
+                                        ${owner.area_total ? `<strong>延べ床面積:</strong> ${owner.area_total}㎡` : ''}
+                                    </li>
+                                </ul>
+                            </div>
+                            ${youtubeHTML}
+                            <h5 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4 mt-6">図面・資料</h5>
+                            <div class="space-y-2">
+                                ${fileHTML || '<p class="text-gray-500">ファイルはありません。</p>'}
+                            </div>
+                            <h5 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4 mt-6">見学予約</h5>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                                <div class="calendar-container" data-owner-id="${owner.id}"></div>
+                                <div class="time-slots-container flex flex-col items-center justify-center h-full text-gray-400 p-4 border rounded-md bg-gray-50 min-h-[260px]" data-owner-id="${owner.id}">
+                                     <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                     <span class="text-center">左のカレンダーから<br>日付を選択してください</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            };
+
+            const renderPagination = () => {
+                paginationControls.innerHTML = '';
+                const pageCount = Math.ceil(filteredOwnersData.length / ITEMS_PER_PAGE);
+                if (pageCount <= 1) return;
+                
+                const createButton = (text, isDisabled, onClick) => {
+                    const button = document.createElement('button');
+                    button.textContent = text;
+                    button.disabled = isDisabled;
+                    button.className = 'px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed';
+                    button.addEventListener('click', onClick);
+                    return button;
+                };
+
+                paginationControls.appendChild(createButton('前へ', currentPage === 1, () => { if (currentPage > 1) { currentPage--; renderOwnerList(); } }));
+
+                for (let i = 1; i <= pageCount; i++) {
+                    const pageButton = document.createElement('button');
+                    pageButton.textContent = i;
+                    pageButton.className = `px-4 py-2 text-sm font-medium border rounded-md ${currentPage === i ? 'bg-amber-500 text-white border-amber-500' : 'text-gray-700 bg-white border-gray-300 hover:bg-gray-50'}`;
+                    if (currentPage === i) pageButton.setAttribute('aria-current', 'page');
+                    pageButton.addEventListener('click', () => { currentPage = i; renderOwnerList(); });
+                    paginationControls.appendChild(pageButton);
+                }
+
+                paginationControls.appendChild(createButton('次へ', currentPage === pageCount, () => { if (currentPage < pageCount) { currentPage++; renderOwnerList(); } }));
+            };
+
+            const renderOwnerList = () => {
+                ownerListContainer.innerHTML = '';
+                const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+                const endIndex = startIndex + ITEMS_PER_PAGE;
+                const paginatedItems = filteredOwnersData.slice(startIndex, endIndex);
+
+                if (paginatedItems.length === 0) {
+                    ownerListContainer.innerHTML = `<p class="text-gray-500">該当する物件はありません。</p>`;
+                } else {
+                    paginatedItems.forEach((owner) => {
+                        ownerListContainer.innerHTML += createOwnerCardHTML(owner);
+                    });
+                }
+                
+                setupEventListeners();
+                renderPagination();
+            };
+            
+            const setupEventListeners = () => {
+                document.querySelectorAll('.client-card-header').forEach(header => {
+                    header.addEventListener('click', e => {
+                        if (e.target.closest('button')) return;
+                        const card = header.closest('.client-card');
+                        card.classList.toggle('is-open');
+                        const details = card.querySelector('.client-details');
+                        const icon = card.querySelector('.accordion-icon');
+                        if (card.classList.contains('is-open')) {
+                            icon.classList.add('rotate-180');
+                            const ownerId = card.dataset.id;
+                            const calendarContainer = details.querySelector(`.calendar-container[data-owner-id="${ownerId}"]`);
+                            if (!calendarContainer.innerHTML) {
+                                const today = new Date();
+                                generateCalendar(calendarContainer, ownerId, today.getFullYear(), today.getMonth());
+                            }
+                            details.style.maxHeight = details.scrollHeight + "px";
+                        } else {
+                            icon.classList.remove('rotate-180');
+                            details.style.maxHeight = null;
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); openEditModal(e.currentTarget.dataset.docId); }));
+                document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', async e => {
+                    e.stopPropagation();
+                    const docId = e.currentTarget.dataset.docId;
+                    if (await showModal('削除の確認', 'この情報を削除してもよろしいですか？')) {
+                        try { await deleteDoc(doc(db, ownersCollectionRef.path, docId)); } 
+                        catch (error) { console.error("Error deleting document: ", error); await showModal('エラー', '削除に失敗しました。', 'alert'); }
+                    }
+                }));
+            };
+
+            const generateCalendar = (container, ownerId, year, month) => {
+                container.innerHTML = '';
+                const monthNames = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+                const days = ['日', '月', '火', '水', '木', '金', '土'];
+                
+                const header = document.createElement('div');
+                header.className = 'flex justify-between items-center mb-4';
+                
+                const createButton = (text, onClick) => {
+                    const button = document.createElement('button');
+                    button.innerHTML = text;
+                    button.className = 'px-2 py-1 rounded hover:bg-gray-200';
+                    button.onclick = onClick;
+                    return button;
+                };
+
+                header.appendChild(createButton('&lt;', () => { const d = new Date(year, month - 1, 1); generateCalendar(container, ownerId, d.getFullYear(), d.getMonth()); }));
+                const monthTitle = document.createElement('h4');
+                monthTitle.textContent = `${year}年 ${monthNames[month]}`;
+                monthTitle.className = 'font-bold';
+                header.appendChild(monthTitle);
+                header.appendChild(createButton('&gt;', () => { const d = new Date(year, month + 1, 1); generateCalendar(container, ownerId, d.getFullYear(), d.getMonth()); }));
+
+                const table = document.createElement('table');
+                table.className = 'calendar';
+                const thead = table.createTHead();
+                const tbody = table.createTBody();
+                const headerRow = thead.insertRow();
+                days.forEach(day => { const th = document.createElement('th'); th.textContent = day; headerRow.appendChild(th); });
+
+                const firstDay = new Date(year, month).getDay();
+                const daysInMonth = 32 - new Date(year, month, 32).getDate();
+                
+                let date = 1;
+                for (let i = 0; i < 6; i++) {
+                    const row = tbody.insertRow();
+                    for (let j = 0; j < 7; j++) {
+                        const cell = row.insertCell();
+                        if (i === 0 && j < firstDay) {
+                            cell.classList.add('empty');
+                        } else if (date <= daysInMonth) {
+                            cell.textContent = date;
+                            const dateString = `${year}-${(month + 1).toString().padStart(2, '0')}-${date.toString().padStart(2, '0')}`;
+                            cell.dataset.date = dateString;
+                            const today = new Date();
+                            if (date === today.getDate() && year === today.getFullYear() && month === today.getMonth()) cell.classList.add('today');
+                            cell.onclick = () => {
+                                document.querySelectorAll('.calendar td.selected').forEach(el => el.classList.remove('selected'));
+                                cell.classList.add('selected');
+                                showTimeSlots(ownerId, dateString);
+                            };
+                            date++;
+                        }
+                    }
+                }
+                container.appendChild(header);
+                container.appendChild(table);
+            };
+
+            const showTimeSlots = (ownerId, dateString) => {
+                const timeSlotContainer = document.querySelector(`.time-slots-container[data-owner-id="${ownerId}"]`);
+                timeSlotContainer.innerHTML = '<h4 class="font-bold mb-2">時間を選択してください</h4><div class="slots-grid grid grid-cols-3 gap-2 w-full"></div>';
+                const slotsGrid = timeSlotContainer.querySelector('.slots-grid');
+                
+                const bookings = customersData.filter(c => c.ownerId === ownerId && c.date === dateString);
+
+                for (let hour = 9; hour < 18; hour++) {
+                    const timeString = `${hour.toString().padStart(2, '0')}:00`;
+                    const booking = bookings.find(b => b.time === timeString);
+                    const button = document.createElement('button');
+                    button.textContent = timeString;
+                    button.className = 'p-2 border rounded-md text-sm';
+                    
+                    if (booking) {
+                        button.textContent = `✖ ${booking.customerName}様`;
+                        button.className += ' bg-red-100 text-red-700 cursor-not-allowed';
+                        button.disabled = true;
+                    } else {
+                        button.className += ' bg-white hover:bg-amber-100';
+                        button.onclick = () => saveReservation(ownerId, dateString, timeString);
+                    }
+                    slotsGrid.appendChild(button);
+                }
+            };
+            
+            const saveReservation = (ownerId, dateString, timeString) => {
+                customerModal.classList.remove('hidden');
+                customerModal.classList.add('flex');
+                customerForm.reset();
+                customerForm.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const customerName = document.getElementById('customerName').value;
+                    const salesRep = document.getElementById('salesRep').value;
+                    const owner = allOwnersData.find(o => o.id === ownerId);
+
+                    if (await showModal('予約の確認', `${owner.title} on ${dateString} ${timeString} for ${customerName}様 (${salesRep}担当) \nこの内容で予約を確定しますか？`)) {
+                        try {
+                            await addDoc(customersCollectionRef, { 
+                                ownerId, 
+                                ownerTitle: owner.title,
+                                date: dateString, 
+                                time: timeString, 
+                                customerName,
+                                salesRep,
+                                status: '商談中', // Default status
+                                bookedAt: Date.now() 
+                            });
+                            await showModal('完了', '予約が完了しました。', 'alert');
+                        } catch (error) {
+                            console.error("Error adding reservation: ", error);
+                            await showModal('エラー', '予約に失敗しました。', 'alert');
+                        } finally {
+                           customerModal.classList.add('hidden');
+                        }
+                    }
+                };
+            };
+            
+            const renderCustomerList = () => {
+                customerListBody.innerHTML = '';
+                customersData.sort((a,b) => (b.bookedAt || 0) - (a.bookedAt || 0));
+                customersData.forEach(customer => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b';
+                    row.innerHTML = `
+                        <td class="py-3 px-4">${customer.ownerTitle}</td>
+                        <td class="py-3 px-4">${customer.date} ${customer.time}</td>
+                        <td class="py-3 px-4">${customer.customerName}</td>
+                        <td class="py-3 px-4">${customer.salesRep}</td>
+                        <td class="py-3 px-4">
+                            <select class="status-select border rounded p-1" data-id="${customer.id}">
+                                <option value="商談中" ${customer.status === '商談中' ? 'selected' : ''}>商談中</option>
+                                <option value="成約" ${customer.status === '成約' ? 'selected' : ''}>成約</option>
+                                <option value="他決" ${customer.status === '他決' ? 'selected' : ''}>他決</option>
+                            </select>
+                        </td>
+                        <td class="py-3 px-4">
+                            <button class="cancel-booking-btn text-red-500 hover:text-red-700 text-sm font-medium" data-id="${customer.id}">削除</button>
+                        </td>
+                    `;
+                    customerListBody.appendChild(row);
+                });
+            };
+            
+            const renderVisitsChart = () => {
+                if (allOwnersData.length === 0) return;
+                const ctx = document.getElementById('visitsChart').getContext('2d');
+                const labels = allOwnersData.map(o => o.title);
+                
+                const contractedData = allOwnersData.map(owner => 
+                    customersData.filter(c => c.ownerId === owner.id && c.status === '成約').length
+                );
+                const inProgressData = allOwnersData.map(owner => 
+                    customersData.filter(c => c.ownerId === owner.id && c.status === '商談中').length
+                );
+
+                if (visitsChartInstance) visitsChartInstance.destroy();
+                
+                visitsChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: '商談中', data: inProgressData, backgroundColor: 'rgba(59, 130, 246, 0.6)', borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 1 },
+                            { label: '成約', data: contractedData, backgroundColor: 'rgba(16, 185, 129, 0.6)', borderColor: 'rgba(16, 185, 129, 1)', borderWidth: 1 }
+                        ]
+                    },
+                    options: {
+                        scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } } },
+                        responsive: true,
+                        plugins: { 
+                            title: { display: true, text: '邸宅ごとの見学ステータス' },
+                            datalabels: {
+                                color: 'white',
+                                font: { weight: 'bold' },
+                                formatter: (value) => value > 0 ? value : ''
+                            }
+                        }
+                    }
+                });
+            };
+
+            const updateCustomerStatus = async (docId, newStatus) => {
+                try { await updateDoc(doc(db, customersCollectionRef.path, docId), { status: newStatus }); }
+                catch(e) { console.error("Status update failed:", e); await showModal('エラー', 'ステータスの更新に失敗しました。', 'alert');}
+            };
+
+             const uploadFile = async (file) => {
+                if (!file) return null;
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const storageRef = ref(storage, `files/${appId}/${Date.now()}-${file.name}`);
+                try {
+                    const snapshot = await uploadBytes(storageRef, file);
+                    return await getDownloadURL(snapshot.ref);
+                } catch (error) {
+                    console.error("Upload failed for file:", file.name, error);
+                    throw new Error(`アップロードに失敗しました: ${file.name}`);
+                }
+            };
+
+            const resetForm = () => {
+                addOwnerForm.reset();
+                document.getElementById('file_drawing_current').innerHTML = '';
+                document.getElementById('file_photo_current').innerHTML = '';
+            };
+
+            const openAddModal = () => {
+                modalTitle.textContent = "新しいオーナー様情報を追加";
+                resetForm();
+                delete addOwnerForm.dataset.editingDocId;
+                addOwnerModal.classList.remove('hidden');
+                addOwnerModal.classList.add('flex');
+            };
+
+            const openEditModal = (docId) => {
+                const owner = allOwnersData.find(o => o.id === docId);
+                if (!owner) return showModal('エラー', '編集対象のデータが見つかりません。', 'alert');
+                
+                modalTitle.textContent = "オーナー様情報を編集";
+                resetForm();
+                
+                const form = addOwnerForm;
+                form.elements.title.value = owner.title || '';
+                form.elements.short_desc.value = owner.short_desc || '';
+                form.elements.long_desc.value = owner.long_desc || '';
+                form.elements.owner_name.value = owner.owner_name || '';
+                form.elements.address.value = owner.address || '';
+                form.elements.email.value = owner.email || '';
+                form.elements.phone.value = owner.phone || '';
+                form.elements.area_1f.value = owner.area_1f || '';
+                form.elements.area_2f.value = owner.area_2f || '';
+                form.elements.area_3f.value = owner.area_3f || '';
+                form.elements.area_total.value = owner.area_total || '';
+                form.elements.youtube_url.value = owner.youtube_url || '';
+
+                if (owner.gallery) {
+                     if (owner.gallery.drawing) {
+                        document.getElementById('file_drawing_current').innerHTML = `現在のファイル: <a href="${owner.gallery.drawing}" target="_blank" class="text-blue-500 hover:underline">表示</a>`;
+                    }
+                    if (owner.gallery.photo) {
+                        document.getElementById('file_photo_current').innerHTML = `現在のファイル: <a href="${owner.gallery.photo}" target="_blank" class="text-blue-500 hover:underline">表示</a>`;
+                    }
+                }
+                
+                addOwnerForm.dataset.editingDocId = docId;
+                addOwnerModal.classList.remove('hidden');
+                addOwnerModal.classList.add('flex');
+            };
+            
+            // Image Modal
+            const imageModal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const closeModal = document.getElementById('closeModal');
+
+            window.showImageModal = function(src) {
+                modalImage.src = src;
+                imageModal.classList.remove('hidden');
+                imageModal.classList.add('flex');
+            }
+            closeModal.onclick = function() {
+                imageModal.classList.add('hidden');
+                imageModal.classList.remove('flex');
+            }
+
+
+            document.getElementById('addOwnerBtn').addEventListener('click', openAddModal);
+            document.getElementById('cancelAddOwner').addEventListener('click', () => { 
+                addOwnerModal.classList.add('hidden'); 
+                addOwnerModal.classList.remove('flex');
+            });
+            document.getElementById('cancelCustomer').addEventListener('click', () => { customerModal.classList.add('hidden'); });
+
+            customerListBody.addEventListener('change', e => {
+                if (e.target.classList.contains('status-select')) updateCustomerStatus(e.target.dataset.id, e.target.value);
+            });
+            customerListBody.addEventListener('click', async (e) => {
+                if (e.target.classList.contains('cancel-booking-btn')) {
+                    const customerId = e.target.dataset.id;
+                    const customer = customersData.find(c => c.id === customerId);
+                    if (customer && await showModal('予約削除', `以下の予約を削除しますか？\n\n物件: ${customer.ownerTitle}\n日時: ${customer.date} ${customer.time}\nお客様: ${customer.customerName}様`)) {
+                        try { await deleteDoc(doc(db, customersCollectionRef.path, customerId)); }
+                        catch (error) { console.error("Deletion failed:", error); await showModal('エラー', '予約の削除に失敗しました。', 'alert'); }
+                    }
+                }
+            });
+
+            filterControls.addEventListener('click', e => {
+                if (e.target.tagName === 'BUTTON') {
+                    currentFilter = e.target.dataset.filter;
+                    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentPage = 1;
+                    applyFilterAndSort();
+                    renderOwnerList();
+                }
+            });
+
+            addOwnerForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const saveBtn = document.getElementById('saveOwnerBtn');
+                saveBtn.disabled = true;
+                saveBtn.textContent = '保存中...';
+
+                const editingDocId = addOwnerForm.dataset.editingDocId;
+                const originalData = editingDocId ? allOwnersData.find(o => o.id === editingDocId) : null;
+                
+                try {
+                    const form = e.target;
+                    const drawingFile = form.elements.drawing.files[0];
+                    const photoFile = form.elements.photo.files[0];
+
+                    const drawingURLPromise = drawingFile 
+                        ? uploadFile(drawingFile) 
+                        : Promise.resolve(originalData?.gallery?.drawing || '');
+                        
+                    const photoURLPromise = photoFile 
+                        ? uploadFile(photoFile) 
+                        : Promise.resolve(originalData?.gallery?.photo || '');
+                    
+                    const [drawingURL, photoURL] = await Promise.all([drawingURLPromise, photoURLPromise]);
+
+                    const dataToSave = {
+                        title: form.elements.title.value,
+                        short_desc: form.elements.short_desc.value,
+                        long_desc: form.elements.long_desc.value,
+                        owner_name: form.elements.owner_name.value,
+                        address: form.elements.address.value,
+                        email: form.elements.email.value,
+                        phone: form.elements.phone.value,
+                        area_1f: form.elements.area_1f.value,
+                        area_2f: form.elements.area_2f.value,
+                        area_3f: form.elements.area_3f.value,
+                        area_total: form.elements.area_total.value,
+                        youtube_url: form.elements.youtube_url.value,
+                        gallery: {
+                            drawing: drawingURL,
+                            photo: photoURL,
+                        }
+                    };
+                    
+                    if (editingDocId) {
+                        await updateDoc(doc(db, ownersCollectionRef.path, editingDocId), dataToSave);
+                    } else {
+                        dataToSave.createdAt = Date.now();
+                        await addDoc(ownersCollectionRef, dataToSave);
+                        currentPage = 1;
+                    }
+                    addOwnerModal.classList.add('hidden');
+                    addOwnerModal.classList.remove('flex');
+                    
+                } catch (error) {
+                    console.error("Save process failed:", error);
+                    await showModal('保存エラー', `データの保存に失敗しました。\n\n理由: ${error.message}`, 'alert');
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = '保存する';
+                }
+            });
+        });
     </script>
 </body>
 </html>
