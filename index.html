@@ -1,1 +1,217 @@
-<!doctype html><title>Viewing Reservation Table</title>
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viewing Reservation Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .reservation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .reservation-table th,
+        .reservation-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .reservation-table th {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .reservation-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .reservation-table tr:hover {
+            background-color: #f0f8ff;
+        }
+        
+        .status-available {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .status-reserved {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .filter-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .filter-section label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .filter-section input,
+        .filter-section select {
+            margin-right: 15px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>予約テーブル表示システム</h1>
+        
+        <div class="filter-section">
+            <label for="dateFilter">日付:</label>
+            <input type="date" id="dateFilter" onchange="filterReservations()">
+            
+            <label for="statusFilter">ステータス:</label>
+            <select id="statusFilter" onchange="filterReservations()">
+                <option value="">すべて</option>
+                <option value="available">空き</option>
+                <option value="reserved">予約済み</option>
+                <option value="pending">保留中</option>
+            </select>
+            
+            <label for="tableFilter">テーブル番号:</label>
+            <input type="text" id="tableFilter" placeholder="テーブル番号で検索" onkeyup="filterReservations()">
+        </div>
+        
+        <table class="reservation-table" id="reservationTable">
+            <thead>
+                <tr>
+                    <th>テーブル番号</th>
+                    <th>日付</th>
+                    <th>時間</th>
+                    <th>お客様名</th>
+                    <th>人数</th>
+                    <th>ステータス</th>
+                    <th>備考</th>
+                </tr>
+            </thead>
+            <tbody id="reservationData">
+                <tr>
+                    <td>T001</td>
+                    <td>2025-09-13</td>
+                    <td>18:00-20:00</td>
+                    <td>田中様</td>
+                    <td>4名</td>
+                    <td><span class="status-reserved">予約済み</span></td>
+                    <td>誕生日のお祝い</td>
+                </tr>
+                <tr>
+                    <td>T002</td>
+                    <td>2025-09-13</td>
+                    <td>19:00-21:00</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td><span class="status-available">空き</span></td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>T003</td>
+                    <td>2025-09-13</td>
+                    <td>18:30-20:30</td>
+                    <td>佐藤様</td>
+                    <td>2名</td>
+                    <td><span class="status-pending">保留中</span></td>
+                    <td>要確認</td>
+                </tr>
+                <tr>
+                    <td>T004</td>
+                    <td>2025-09-14</td>
+                    <td>17:00-19:00</td>
+                    <td>鈴木様</td>
+                    <td>6名</td>
+                    <td><span class="status-reserved">予約済み</span></td>
+                    <td>歓送迎会</td>
+                </tr>
+                <tr>
+                    <td>T005</td>
+                    <td>2025-09-14</td>
+                    <td>20:00-22:00</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td><span class="status-available">空き</span></td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <script>
+        function filterReservations() {
+            const dateFilter = document.getElementById('dateFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const tableFilter = document.getElementById('tableFilter').value.toLowerCase();
+            const tbody = document.getElementById('reservationData');
+            const rows = tbody.getElementsByTagName('tr');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const tableNumber = row.cells[0].textContent.toLowerCase();
+                const date = row.cells[1].textContent;
+                const statusElement = row.cells[5].querySelector('span');
+                const status = statusElement ? statusElement.className.split('-')[1] : '';
+                
+                let showRow = true;
+                
+                if (dateFilter && date !== dateFilter) {
+                    showRow = false;
+                }
+                
+                if (statusFilter && status !== statusFilter) {
+                    showRow = false;
+                }
+                
+                if (tableFilter && !tableNumber.includes(tableFilter)) {
+                    showRow = false;
+                }
+                
+                row.style.display = showRow ? '' : 'none';
+            }
+        }
+        
+        // 今日の日付をデフォルトに設定
+        document.getElementById('dateFilter').value = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+</html>
