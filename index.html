@@ -255,16 +255,89 @@
                      <input type="url" name="youtube_url" placeholder="https://www.youtube.com/watch?v=..." class="w-full p-2 border rounded">
                      <hr>
                     <h4 class="font-semibold">図面・現場写真</h4>
-                     <div class="space-y-3">
+                     <div class="space-y-6">
+                        <!-- Drawing Upload -->
                         <div>
-                            <label for="file_drawing" class="text-sm font-medium text-gray-700">図面 (PDF, PNG, JPG)</label>
-                            <input type="file" name="drawing" id="file_drawing" accept=".pdf,.png,.jpg,.jpeg" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
-                            <span id="file_drawing_current" class="text-xs text-gray-500 mt-1 block"></span>
+                            <label for="file_drawing" class="block text-sm font-medium text-gray-700 mb-2">図面 (PDF, PNG, JPG)</label>
+                            <div class="upload-area" id="drawing_upload_area" data-target="drawing">
+                                <div class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-amber-400 transition-colors cursor-pointer">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <div class="mt-4">
+                                        <p class="text-sm text-gray-600">
+                                            <span class="font-medium text-amber-600 hover:text-amber-500">クリックしてファイルを選択</span>
+                                            または ドラッグ＆ドロップ
+                                        </p>
+                                        <p class="text-xs text-gray-500 mt-1">PDF, PNG, JPG (最大 10MB)</p>
+                                    </div>
+                                </div>
+                                <input type="file" name="drawing" id="file_drawing" accept=".pdf,.png,.jpg,.jpeg" class="hidden">
+                                <div class="upload-progress hidden mt-3">
+                                    <div class="bg-gray-200 rounded-full h-2">
+                                        <div class="bg-amber-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">アップロード中...</p>
+                                </div>
+                                <div id="file_drawing_current" class="text-xs text-gray-500 mt-2"></div>
+                                <div class="upload-preview hidden mt-3">
+                                    <div class="flex items-center justify-between bg-gray-50 rounded p-3">
+                                        <div class="flex items-center">
+                                            <svg class="h-8 w-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
+                                            </svg>
+                                            <span class="ml-2 text-sm text-gray-900 filename"></span>
+                                        </div>
+                                        <button type="button" class="remove-file text-red-500 hover:text-red-700">
+                                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Photo Upload -->
                         <div>
-                            <label for="file_photo" class="text-sm font-medium text-gray-700">現場写真 (PNG, JPG)</label>
-                            <input type="file" name="photo" id="file_photo" accept=".png,.jpg,.jpeg" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
-                            <span id="file_photo_current" class="text-xs text-gray-500 mt-1 block"></span>
+                            <label for="file_photo" class="block text-sm font-medium text-gray-700 mb-2">現場写真 (PNG, JPG)</label>
+                            <div class="upload-area" id="photo_upload_area" data-target="photo">
+                                <div class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-amber-400 transition-colors cursor-pointer">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <div class="mt-4">
+                                        <p class="text-sm text-gray-600">
+                                            <span class="font-medium text-amber-600 hover:text-amber-500">クリックしてファイルを選択</span>
+                                            または ドラッグ＆ドロップ
+                                        </p>
+                                        <p class="text-xs text-gray-500 mt-1">PNG, JPG (最大 10MB)</p>
+                                    </div>
+                                </div>
+                                <input type="file" name="photo" id="file_photo" accept=".png,.jpg,.jpeg" class="hidden">
+                                <div class="upload-progress hidden mt-3">
+                                    <div class="bg-gray-200 rounded-full h-2">
+                                        <div class="bg-amber-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">アップロード中...</p>
+                                </div>
+                                <div id="file_photo_current" class="text-xs text-gray-500 mt-2"></div>
+                                <div class="upload-preview hidden mt-3">
+                                    <div class="flex items-center justify-between bg-gray-50 rounded p-3">
+                                        <div class="flex items-center">
+                                            <svg class="h-8 w-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
+                                            </svg>
+                                            <span class="ml-2 text-sm text-gray-900 filename"></span>
+                                        </div>
+                                        <button type="button" class="remove-file text-red-500 hover:text-red-700">
+                                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                      </div>
                 </div>
@@ -385,9 +458,26 @@
             Chart.register(ChartDataLabels);
 
             try {
-                if (typeof __firebase_config === 'undefined' || !__firebase_config) throw new Error('Firebase config is missing.');
-                const firebaseConfig = JSON.parse(__firebase_config);
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                // Firebase設定 - デモ用またはユーザー設定
+                let firebaseConfig, appId;
+                
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    firebaseConfig = JSON.parse(__firebase_config);
+                    appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                } else {
+                    // デモ用Firebase設定（実際のプロジェクトでは適切な設定に変更してください）
+                    firebaseConfig = {
+                        apiKey: "demo-api-key",
+                        authDomain: "demo-project.firebaseapp.com",
+                        projectId: "demo-project",
+                        storageBucket: "demo-project.appspot.com",
+                        messagingSenderId: "123456789",
+                        appId: "1:123456789:web:abcdefghijklmnop"
+                    };
+                    appId = 'demo-app-id';
+                    console.warn('デモモード: Firebaseの実際の設定が見つかりません。ローカル環境で動作させるには適切なFirebase設定が必要です。');
+                }
+                
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -815,16 +905,155 @@
                 catch(e) { console.error("Status update failed:", e); await showModal('エラー', 'ステータスの更新に失敗しました。', 'alert');}
             };
 
-             const uploadFile = async (file) => {
+            // ファイルアップロード機能（Firebase Storage または Base64）
+            const uploadFile = async (file) => {
                 if (!file) return null;
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                const storageRef = ref(storage, `files/${appId}/${Date.now()}-${file.name}`);
+                
+                // ファイルサイズチェック (10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    throw new Error(`ファイルサイズが大きすぎます: ${file.name} (最大10MB)`);
+                }
+                
                 try {
-                    const snapshot = await uploadBytes(storageRef, file);
-                    return await getDownloadURL(snapshot.ref);
+                    // Firebase Storageを試行
+                    if (storage && firebaseConfig.projectId !== 'demo-project') {
+                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                        const storageRef = ref(storage, `files/${appId}/${Date.now()}-${file.name}`);
+                        const snapshot = await uploadBytes(storageRef, file);
+                        return await getDownloadURL(snapshot.ref);
+                    } else {
+                        // フォールバック: Base64エンコード（デモ用）
+                        return new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = () => resolve(reader.result);
+                            reader.onerror = () => reject(new Error(`ファイル読み込みエラー: ${file.name}`));
+                            reader.readAsDataURL(file);
+                        });
+                    }
                 } catch (error) {
                     console.error("Upload failed for file:", file.name, error);
                     throw new Error(`アップロードに失敗しました: ${file.name}`);
+                }
+            };
+
+            // ドラッグアンドドロップ機能の初期化
+            const initializeFileUpload = () => {
+                const uploadAreas = document.querySelectorAll('.upload-area');
+                
+                uploadAreas.forEach(area => {
+                    const targetType = area.dataset.target;
+                    const fileInput = area.querySelector('input[type="file"]');
+                    const uploadZone = area.querySelector('.upload-zone');
+                    const progressDiv = area.querySelector('.upload-progress');
+                    const progressBar = progressDiv.querySelector('div div');
+                    const previewDiv = area.querySelector('.upload-preview');
+                    
+                    // クリックでファイル選択
+                    uploadZone.addEventListener('click', () => fileInput.click());
+                    
+                    // ファイル入力の変更
+                    fileInput.addEventListener('change', (e) => {
+                        if (e.target.files.length > 0) {
+                            handleFileSelection(e.target.files[0], area, targetType);
+                        }
+                    });
+                    
+                    // ドラッグアンドドロップイベント
+                    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                        uploadZone.addEventListener(eventName, preventDefaults, false);
+                    });
+                    
+                    ['dragenter', 'dragover'].forEach(eventName => {
+                        uploadZone.addEventListener(eventName, () => {
+                            uploadZone.classList.add('border-amber-500', 'bg-amber-50');
+                        }, false);
+                    });
+                    
+                    ['dragleave', 'drop'].forEach(eventName => {
+                        uploadZone.addEventListener(eventName, () => {
+                            uploadZone.classList.remove('border-amber-500', 'bg-amber-50');
+                        }, false);
+                    });
+                    
+                    uploadZone.addEventListener('drop', (e) => {
+                        const files = e.dataTransfer.files;
+                        if (files.length > 0) {
+                            handleFileSelection(files[0], area, targetType);
+                        }
+                    }, false);
+                    
+                    // ファイル削除ボタン
+                    const removeBtn = previewDiv.querySelector('.remove-file');
+                    if (removeBtn) {
+                        removeBtn.addEventListener('click', () => {
+                            fileInput.value = '';
+                            previewDiv.classList.add('hidden');
+                            uploadZone.style.display = 'block';
+                        });
+                    }
+                });
+            };
+            
+            const preventDefaults = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            };
+            
+            const handleFileSelection = async (file, area, targetType) => {
+                const uploadZone = area.querySelector('.upload-zone');
+                const progressDiv = area.querySelector('.upload-progress');
+                const progressBar = progressDiv.querySelector('div div');
+                const previewDiv = area.querySelector('.upload-preview');
+                const filenameSpan = previewDiv.querySelector('.filename');
+                
+                // ファイルタイプチェック
+                const allowedTypes = targetType === 'drawing' 
+                    ? ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg']
+                    : ['image/png', 'image/jpeg', 'image/jpg'];
+                    
+                if (!allowedTypes.includes(file.type)) {
+                    await showModal('エラー', `このファイル形式は対応していません: ${file.type}`, 'alert');
+                    return;
+                }
+                
+                try {
+                    // プログレス表示
+                    uploadZone.style.display = 'none';
+                    progressDiv.classList.remove('hidden');
+                    
+                    // プログレスアニメーション
+                    let progress = 0;
+                    const progressInterval = setInterval(() => {
+                        progress += 10;
+                        progressBar.style.width = progress + '%';
+                        if (progress >= 90) clearInterval(progressInterval);
+                    }, 100);
+                    
+                    // ファイルアップロード
+                    const url = await uploadFile(file);
+                    
+                    // 完了
+                    progressBar.style.width = '100%';
+                    setTimeout(() => {
+                        progressDiv.classList.add('hidden');
+                        previewDiv.classList.remove('hidden');
+                        filenameSpan.textContent = file.name;
+                        
+                        // ファイル入力に値を設定（フォーム送信用）
+                        const fileInput = area.querySelector('input[type="file"]');
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        fileInput.files = dataTransfer.files;
+                        
+                        // カスタムデータ属性に URL を保存
+                        fileInput.setAttribute('data-upload-url', url);
+                    }, 500);
+                    
+                } catch (error) {
+                    // エラー処理
+                    progressDiv.classList.add('hidden');
+                    uploadZone.style.display = 'block';
+                    await showModal('アップロードエラー', error.message, 'alert');
                 }
             };
 
@@ -832,6 +1061,19 @@
                 addOwnerForm.reset();
                 document.getElementById('file_drawing_current').innerHTML = '';
                 document.getElementById('file_photo_current').innerHTML = '';
+                
+                // アップロード関連の要素をリセット
+                document.querySelectorAll('.upload-area').forEach(area => {
+                    const uploadZone = area.querySelector('.upload-zone');
+                    const progressDiv = area.querySelector('.upload-progress');
+                    const previewDiv = area.querySelector('.upload-preview');
+                    const fileInput = area.querySelector('input[type="file"]');
+                    
+                    uploadZone.style.display = 'block';
+                    progressDiv.classList.add('hidden');
+                    previewDiv.classList.add('hidden');
+                    fileInput.removeAttribute('data-upload-url');
+                });
             };
 
             const openAddModal = () => {
@@ -900,6 +1142,24 @@
             });
             document.getElementById('cancelCustomer').addEventListener('click', () => { customerModal.classList.add('hidden'); });
 
+            // ファイルアップロード機能を初期化
+            initializeFileUpload();
+            
+            // テスト: ファイルアップロード機能の動作確認
+            console.log('ファイルアップロード機能が初期化されました。');
+            console.log('- ドラッグ&ドロップ対応');
+            console.log('- クリック選択対応'); 
+            console.log('- プログレスバー表示');
+            console.log('- ファイルサイズ制限: 10MB');
+            console.log('- 対応形式: PDF, PNG, JPG (図面), PNG, JPG (写真)');
+            
+            // Firebase接続状態の確認
+            if (firebaseConfig.projectId === 'demo-project') {
+                console.log('デモモード: ファイルはBase64形式で保存されます');
+            } else {
+                console.log('Firebase Storage: ファイルはクラウドに保存されます');
+            }
+
             customerListBody.addEventListener('change', e => {
                 if (e.target.classList.contains('status-select')) updateCustomerStatus(e.target.dataset.id, e.target.value);
             });
@@ -936,18 +1196,26 @@
                 
                 try {
                     const form = e.target;
-                    const drawingFile = form.elements.drawing.files[0];
-                    const photoFile = form.elements.photo.files[0];
+                    const drawingInput = form.elements.drawing;
+                    const photoInput = form.elements.photo;
 
-                    const drawingURLPromise = drawingFile 
-                        ? uploadFile(drawingFile) 
-                        : Promise.resolve(originalData?.gallery?.drawing || '');
-                        
-                    const photoURLPromise = photoFile 
-                        ? uploadFile(photoFile) 
-                        : Promise.resolve(originalData?.gallery?.photo || '');
+                    // アップロード済みのURLを取得、または新しくアップロード
+                    let drawingURL = originalData?.gallery?.drawing || '';
+                    let photoURL = originalData?.gallery?.photo || '';
                     
-                    const [drawingURL, photoURL] = await Promise.all([drawingURLPromise, photoURLPromise]);
+                    // 図面のURL取得
+                    if (drawingInput.hasAttribute('data-upload-url')) {
+                        drawingURL = drawingInput.getAttribute('data-upload-url');
+                    } else if (drawingInput.files[0]) {
+                        drawingURL = await uploadFile(drawingInput.files[0]);
+                    }
+                    
+                    // 写真のURL取得
+                    if (photoInput.hasAttribute('data-upload-url')) {
+                        photoURL = photoInput.getAttribute('data-upload-url');
+                    } else if (photoInput.files[0]) {
+                        photoURL = await uploadFile(photoInput.files[0]);
+                    }
 
                     const dataToSave = {
                         title: form.elements.title.value,
