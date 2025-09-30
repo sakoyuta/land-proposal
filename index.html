@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>土地提案資料作成システム</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Roboto:wght@700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .proposal-a3 {
+            font-size: 8px;
+            line-height: 1.4;
+            color: #334155;
+            background: white;
+            padding: 12mm;
+            width: 420mm;
+            min-height: 297mm;
+            box-sizing: border-box;
+            transform-origin: top left;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .proposal-a3 header {
+            text-align: center;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .proposal-a3 h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 32px;
+            font-weight: 400;
+            color: #1e40af;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        .proposal-a3 .sub-title {
+            font-size: 11px;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+        .proposal-a3 h2 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e40af;
+            border-bottom: 1px solid #3b82f6;
+            padding-bottom: 4px;
+            margin: 12px 0 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        .proposal-a3 h2 .icon {
+            margin-right: 8px;
+            font-size: 16px;
+            color: #3b82f6;
+        }
+        .proposal-a3 .section-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .proposal-a3 .property-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .proposal-a3 .property-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.12);
+        }
+        .proposal-a3 .property-card .card-header {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            padding: 6px 8px;
+            font-weight: 700;
+            font-size: 9px;
+            position: relative;
+        }
+        .proposal-a3 .card-content {
+            padding: 6px;
+        }
+        .proposal-a3 .property-card .price {
+            font-size: 11px;
+            font-weight: bold;
+            color: #dc2626;
+            margin-bottom: 3px;
+        }
+        .proposal-a3 .info-box {
+            background: #f8fafc;
+            border-left: 2px solid #3b82f6;
+            padding: 4px;
+            margin-top: 4px;
+            border-radius: 2px;
+            font-size: 7px;
+        }
+        .proposal-a3 .info-box strong {
+            color: #1e40af;
+            font-weight: 600;
+        }
+        .proposal-a3 .facilities-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+            margin-top: 3px;
+        }
+        .proposal-a3 .facility-item {
+            font-size: 6px;
+            color: #4b5563;
+        }
+        .proposal-a3 .summary-section {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px;
+            margin: 8px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+        }
+        .proposal-a3 .disclaimer {
+            font-size: 8px;
+            color: #64748b;
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .highlight-badge {
+            position: absolute;
+            top: -1px;
+            right: 10px;
+            transform: translateY(-50%);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .badge-recommended { background: #fbbf24; color: #92400e; }
+        .badge-practical { background: #60a5fa; color: #1e3a8a; }
+        .badge-value { background: #34d399; color: #065f46; }
+
+        @media print {
+            body, html {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                background: white !important;
+                margin: 0;
+                padding: 0;
+            }
+            .print-section {
+                page-break-before: always;
+                page-break-inside: avoid;
+            }
+            .proposal-a3 > main > .print-section:first-child {
+                page-break-before: auto;
+            }
+            .proposal-a3 > main > .print-section:nth-child(4) {
+                page-break-before: always;
+            }
+            .property-card, .summary-section {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            #proposal-output-container, .lg\\:col-span-1, .container > header, .flex.justify-end {
+                display: none !important;
+            }
+            .proposal-a3 {
+                transform: scale(1) !important;
+                box-shadow: none !important;
+                border: none !important;
+                width: 100%;
+                height: auto;
+                padding: 10mm;
+                font-size: 9px;
+            }
+            .proposal-a3 h1 {
+                font-size: 36px;
+            }
+            .proposal-a3 .sub-title {
+                font-size: 12px;
+            }
+            .proposal-a3 h2 {
+                font-size: 16px;
+                margin: 15px 0 10px 0;
+            }
+            .proposal-a3 .section-grid {
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            .proposal-a3 .property-card .price {
+                font-size: 14px;
+            }
+            .proposal-a3 .summary-section {
+                padding: 6px;
+                margin: 6px 0;
+            }
+            .proposal-a3 .info-box {
+                padding: 2px;
+                margin-top: 2px;
+                font-size: 6px;
+            }
+            .proposal-a3 .facilities-grid {
+                gap: 1px;
+                margin-top: 2px;
+            }
+            .proposal-a3 .facility-item {
+                font-size: 5px;
+            }
+            @page {
+                size: A3 landscape;
+                margin: 8mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen p-4 sm:p-6 lg:p-8">
+        <div class="container mx-auto max-w-7xl">
+            <header class="text-center mb-8">
+                <h1 class="text-4xl sm:text-5xl font-bold text-white mb-4">
+                    <i class="fas fa-home mr-4"></i>土地提案資料作成システム
+                </h1>
+                <p class="text-xl text-white opacity-90">お客様に最適な土地をプロフェッショナルな提案書で</p>
+            </header>
+
+            <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- 入力フォーム -->
+                <div class="lg:col-span-1">
+                    <div class="glass-effect rounded-2xl p-6 shadow-2xl">
+                        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                            <i class="fas fa-edit mr-3"></i>お客様情報入力
+                        </h2>
+
+                        <div id="drop-zone" class="border-2 border-dashed border-white/50 rounded-xl p-6 text-center cursor-pointer hover:border-white hover:bg-white/10 transition-all duration-300 mb-6">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-white mb-3"></i>
+                            <p id="drop-zone-text" class="text-white">資料PDFをドラッグ＆ドロップ<br>またはクリックして選択</p>
+                            <ul id="file-list" class="text-left text-sm text-white/80 mt-3 space-y-1"></ul>
+                            <input type="file" id="file-input" class="hidden" accept=".pdf" multiple>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-white font-medium mb-2">
+                                    <i class="fas fa-user mr-2"></i>お客様名 *
+                                </label>
+                                <input type="text" id="customerName" class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:border-white focus:bg-white/30 transition-all" placeholder="例：山田太郎様">
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">
+                                    <i class="fas fa-home mr-2"></i>希望建物タイプ
+                                </label>
+                                <select id="buildingType" class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white focus:border-white focus:bg-white/30 transition-all">
+                                    <option value="">選択してください</option>
+                                    <option value="平屋">平屋（1階建て）</option>
+                                    <option value="2階建て">2階建て</option>
+                                    <option value="3階建て">3階建て</option>
+                                    <option value="どれでも">特に希望なし</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">
+                                    <i class="fas fa-expand-arrows-alt mr-2"></i>希望延床面積（坪）
+                                </label>
+                                <input type="number" id="floorArea" class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:border-white focus:bg-white/30 transition-all" placeholder="例：35（約115㎡）">
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">
+                                    <i class="fas fa-bed mr-2"></i>希望部屋数
+                                </label>
+                                <input type="text" id="roomCount" class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:border-white focus:bg-white/30 transition-all" placeholder="例：LDK20帖+個室3室+和室">
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">
+                                    <i class="fas fa-map-marker-alt mr-2"></i>希望府県 *
+                                </label>
+                                <select id="prefecture" class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white focus:border-white focus:bg-white/30 transition-all">
+                                    <option value="">府県を選択</option>
+                                    <option value="大阪府">大阪府</option>
+                                    <option value="兵庫県">兵庫県</option>
+                                    <option value="京都府">京都府</option>
+                                    <option value="奈良県">奈良県</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">
+                                    <i class="fas fa-city mr-2"></i>希望市区町村 *
+                                </label>
+                                <input type="text" id="targetCity" class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:border-white focus:bg-white/30 transition-all" placeholder="例：茨木市、西宮市、奈良市、京都市中京区">
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">
+                                    <i class="fas fa-yen-sign mr-2"></i>土地予算（万円）*
+                                </label>
+                                <input type="number" id="landBudget" class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:border-white focus:bg-white/30 transition-all" placeholder="例：2500">
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">
+                                    <i class="fas fa-home mr-2"></i>建物予算（万円）
+                                </label>
+                                <input type="number" id="houseBudget" class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:border-white focus:bg-white/30 transition-all" placeholder="例：3500">
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">
+                                    <i class="fas fa-users mr-2"></i>家族構成
+                                </label>
+                                <input type="text" id="familyStructure" class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:border-white focus:bg-white/30 transition-all" placeholder="例：夫婦＋お子様2人（3歳・7歳）">
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">
+                                    <i class="fas fa-heart mr-2"></i>重視するポイント
+                                </label>
+                                <select id="priorities" class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white focus:border-white focus:bg-white/30 transition-all">
+                                    <option value="">選択してください</option>
+                                    <option value="通勤利便性">通勤・通学の利便性</option>
+                                    <option value="教育環境">教育環境・学校</option>
+                                    <option value="自然環境">自然環境・静けさ</option>
+                                    <option value="買い物利便性">買い物・生活利便性</option>
+                                    <option value="コスト重視">価格・コストパフォーマンス</option>
+                                    <option value="将来性">資産価値・将来性</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">
+                                    <i class="fas fa-car mr-2"></i>駐車場必要台数
+                                </label>
+                                <select id="parkingNeeds" class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white focus:border-white focus:bg-white/30 transition-all">
+                                    <option value="">選択してください</option>
+                                    <option value="不要">駐車場不要</option>
+                                    <option value="1台">1台</option>
+                                    <option value="2台">2台</option>
+                                    <option value="3台以上">3台以上</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-white font-medium mb-2">
+                                    <i class="fas fa-leaf mr-2"></i>庭・外構の希望
+                                </label>
+                                <input type="text" id="gardenNeeds" class="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:border-white focus:bg-white/30 transition-all" placeholder="例：家庭菜園、BBQスペース、ドッグラン">
+                            </div>
+                        </div>
+
+                        <button id="generate-btn" class="w-full mt-8 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-4 px-6 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                            <i class="fas fa-magic mr-3"></i>提案資料を生成する
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 出力エリア -->
+                <div class="lg:col-span-2">
+                    <div class="flex justify-end items-center mb-4">
+                        <button id="print-btn" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 shadow-lg hidden">
+                            <i class="fas fa-print mr-2"></i>印刷
+                        </button>
+                    </div>
+
+                    <div id="proposal-output-container" class="glass-effect rounded-2xl p-4 shadow-2xl overflow-x-auto">
+                        <div id="proposal-output">
+                            <div class="text-center py-20">
+                                <i class="fas fa-file-alt text-8xl text-white/50 mb-6"></i>
+                                <p class="text-white text-xl">左のフォームに情報を入力して<br>提案資料を生成してください</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // DOM要素の取得
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const dropZoneText = document.getElementById('drop-zone-text');
+        const fileListDisplay = document.getElementById('file-list');
+        const generateBtn = document.getElementById('generate-btn');
+        const printBtn = document.getElementById('print-btn');
+        const proposalOutput = document.getElementById('proposal-output');
+
+        let uploadedFiles = [];
+
+        // ファイルリスト更新
+        function updateFileList() {
+            dropZoneText.classList.toggle('hidden', uploadedFiles.length > 0);
+            fileListDisplay.innerHTML = '';
+            uploadedFiles.forEach((file, index) => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <div class="flex items-center justify-between bg-white/20 rounded-lg p-2 mt-2">
+                        <span><i class="fas fa-file-pdf text-red-400 mr-2"></i>${file.name}</span>
+                        <button onclick="removeFile(${index})" class="text-red-400 hover:text-red-300 text-sm">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                fileListDisplay.appendChild(listItem);
+            });
+        }
+
+        // ファイル削除
+        window.removeFile = function(index) {
+            uploadedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        // ドラッグ＆ドロップイベント
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-white', 'bg-white/20');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('border-white', 'bg-white/20');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-white', 'bg-white/20');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+        // ファイル処理
+        function handleFiles(files) {
+            const pdfFiles = Array.from(files).filter(file => file.type === 'application/pdf');
+            if (pdfFiles.length !== files.length) {
+                alert('PDFファイルのみアップロードできます。');
+            }
+            uploadedFiles.push(...pdfFiles);
+            uploadedFiles = uploadedFiles.filter((file, index, self) =>
+                index === self.findIndex((f) => f.name === file.name && f.size === file.size)
+            );
+            updateFileList();
+        }
+
+        // 提案資料生成
+        generateBtn.addEventListener('click', () => {
+            const customerName = document.getElementById('customerName').value;
+            const buildingType = document.getElementById('buildingType').value;
+            const floorArea = parseFloat(document.getElementById('floorArea').value) || 0;
+            const roomCount = document.getElementById('roomCount').value;
+            const prefecture = document.getElementById('prefecture').value;
+            const targetCity = document.getElementById('targetCity').value;
+            const landBudget = parseFloat(document.getElementById('landBudget').value);
+            const houseBudget = parseFloat(document.getElementById('houseBudget').value) || 3500;
+            const familyStructure = document.getElementById('familyStructure').value || '家族構成未入力';
+            const priorities = document.getElementById('priorities').value;
+            const parkingNeeds = document.getElementById('parkingNeeds').value;
+            const gardenNeeds = document.getElementById('gardenNeeds').value;
+
+            if (!customerName || !prefecture || !targetCity || isNaN(landBudget)) {
+                alert('必須項目（お客様名、希望府県、希望市区町村、土地予算）を入力してください。');
+                return;
+            }
+
+            // お客様要望データオブジェクト
+            const customerRequirements = {
+                buildingType,
+                floorArea,
+                roomCount,
+                priorities,
+                parkingNeeds,
+                gardenNeeds,
+                uploadedFiles: uploadedFiles.length
+            };
+
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i>生成中...';
+            generateBtn.disabled = true;
+
+            proposalOutput.innerHTML = `
+                <div class="text-center py-20">
+                    <i class="fas fa-cog fa-spin text-6xl text-white/70 mb-6"></i>
+                    <div class="text-white text-xl">お客様専用の提案資料を作成中...</div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                const proposalHTML = generateProposal(customerName, prefecture, targetCity, landBudget, houseBudget, familyStructure, customerRequirements);
+                proposalOutput.innerHTML = proposalHTML;
+                proposalOutput.classList.add('fade-in');
+                printBtn.classList.remove('hidden');
+
+                generateBtn.innerHTML = '<i class="fas fa-magic mr-3"></i>提案資料を生成する';
+                generateBtn.disabled = false;
+
+                // スケール調整
+                const containerWidth = document.getElementById('proposal-output-container').clientWidth - 32;
+                const a3Content = proposalOutput.querySelector('.proposal-a3');
+                if (a3Content) {
+                    const scale = Math.min(containerWidth / 1587, 1);
+                    a3Content.style.transform = `scale(${scale})`;
+                }
+            }, 2000);
+        });
+
+        // 印刷
+        printBtn.addEventListener('click', () => {
+            const printContent = document.getElementById('proposal-output').innerHTML;
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>土地提案書 - ${document.getElementById('customerName').value}</title>
+                    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+                    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+                    <style>${document.querySelector('style').innerHTML}</style>
+                </head>
+                <body>${printContent}</body>
+                </html>
+            `);
+            printWindow.document.close();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        });
+
+        // エリア特性データベース
+        const areaDatabase = {
+            '大阪府': {
+                '茨木市': { avgPrice: 35, schools: '優良', transport: '良好', features: '北摂の文教都市、大阪市内アクセス良好' },
+                '高槻市': { avgPrice: 32, schools: '優良', transport: '良好', features: '文化財豊富、子育て支援充実' },
+                '吹田市': { avgPrice: 45, schools: '優秀', transport: '優秀', features: '万博公園、大阪大学、高級住宅街' },
+                '豊中市': { avgPrice: 42, schools: '優秀', transport: '優秀', features: '大阪国際空港近く、文教地区' },
+                '箕面市': { avgPrice: 38, schools: '優秀', transport: '良好', features: '自然豊か、紅葉で有名、教育熱心' },
+                '枚方市': { avgPrice: 28, schools: '良好', transport: '良好', features: '京阪沿線、歴史ある街並み' },
+                '寝屋川市': { avgPrice: 25, schools: '普通', transport: '良好', features: 'コストパフォーマンス良好' },
+                '守口市': { avgPrice: 22, schools: '普通', transport: '優秀', features: '大阪市隣接、交通至便' },
+                '門真市': { avgPrice: 20, schools: '普通', transport: '良好', features: '工業都市、リーズナブル' },
+                '大東市': { avgPrice: 18, schools: '普通', transport: '普通', features: '住みやすさランキング上位' }
+            },
+            '兵庫県': {
+                '西宮市': { avgPrice: 40, schools: '優秀', transport: '優秀', features: '阪神間モダニズム、文教都市' },
+                '尼崎市': { avgPrice: 22, schools: '普通', transport: '優秀', features: '大阪に近く通勤便利' },
+                '伊丹市': { avgPrice: 35, schools: '良好', transport: '良好', features: '大阪国際空港、酒造の街' },
+                '宝塚市': { avgPrice: 38, schools: '優秀', transport: '良好', features: '宝塚歌劇、高級住宅街' },
+                '川西市': { avgPrice: 30, schools: '良好', transport: '良好', features: '自然豊か、ベッドタウン' },
+                '三田市': { avgPrice: 25, schools: '良好', transport: '普通', features: 'ニュータウン、自然環境良好' },
+                '芦屋市': { avgPrice: 65, schools: '優秀', transport: '優秀', features: '関西屈指の高級住宅街' },
+                '神戸市東灘区': { avgPrice: 45, schools: '優秀', transport: '優秀', features: '六甲山麓、文教地区' },
+                '神戸市灘区': { avgPrice: 40, schools: '優秀', transport: '優秀', features: '酒造と教育の街' },
+                '明石市': { avgPrice: 28, schools: '良好', transport: '良好', features: '子午線の街、海と緑' }
+            },
+            '京都府': {
+                '京都市中京区': { avgPrice: 55, schools: '優秀', transport: '優秀', features: '京都中心部、文化的価値高' },
+                '京都市北区': { avgPrice: 45, schools: '優秀', transport: '良好', features: '金閣寺、静かな住環境' },
+                '京都市左京区': { avgPrice: 40, schools: '優秀', transport: '良好', features: '銀閣寺、大学多数' },
+                '京都市右京区': { avgPrice: 35, schools: '良好', transport: '良好', features: '嵐山、自然と歴史' },
+                '京都市伏見区': { avgPrice: 30, schools: '良好', transport: '良好', features: '酒造の街、交通便利' },
+                '宇治市': { avgPrice: 28, schools: '良好', transport: '良好', features: '宇治茶、平等院鳳凰堂' },
+                '向日市': { avgPrice: 35, schools: '良好', transport: '良好', features: 'コンパクト、京都大阪アクセス良' },
+                '長岡京市': { avgPrice: 32, schools: '良好', transport: '良好', features: '竹林、文化的環境' },
+                '八幡市': { avgPrice: 25, schools: '普通', transport: '良好', features: '石清水八幡宮、自然豊か' },
+                '京田辺市': { avgPrice: 28, schools: '良好', transport: '良好', features: '学研都市、教育環境良好' }
+            },
+            '奈良県': {
+                '奈良市': { avgPrice: 25, schools: '良好', transport: '良好', features: '古都、東大寺、文化遺産' },
+                '生駒市': { avgPrice: 30, schools: '良好', transport: '良好', features: '大阪通勤圏、自然豊か' },
+                '香芝市': { avgPrice: 22, schools: '普通', transport: '良好', features: '大阪通勤圏、新興住宅地' },
+                '橿原市': { avgPrice: 18, schools: '普通', transport: '普通', features: '歴史の街、コスト安' },
+                '大和高田市': { avgPrice: 15, schools: '普通', transport: '普通', features: '奈良県北西部、リーズナブル' },
+                '大和郡山市': { avgPrice: 20, schools: '普通', transport: '良好', features: '金魚の街、奈良市近郊' },
+                '天理市': { avgPrice: 16, schools: '普通', transport: '普通', features: '宗教都市、静かな環境' },
+                '桜井市': { avgPrice: 14, schools: '普通', transport: '普通', features: '三輪山、歴史ロマン' },
+                '葛城市': { avgPrice: 18, schools: '普通', transport: '普通', features: '大阪通勤可、自然環境' },
+                '平群町': { avgPrice: 12, schools: '普通', transport: '普通', features: '里山、超低価格' }
+            }
+        };
+
+        // 土地データ生成（SUUMO/ホームズ風データ）
+        function generateLandData(prefecture, city, budget, type = 'ideal') {
+            const areaInfo = areaDatabase[prefecture]?.[city] || { avgPrice: 30, schools: '普通', transport: '普通', features: '住環境良好' };
+            const basePrice = areaInfo.avgPrice;
+
+            // お客様の要望に基づくサイズ調整
+            const { buildingType, floorArea, parkingNeeds, gardenNeeds } = customerRequirements;
+
+            let priceMultiplier, sizeRange, gouseAdviceType;
+            let minLandSize = 25; // 最小敷地面積
+
+            // 建物要望に応じた敷地サイズ調整
+            if (buildingType === '平屋') {
+                minLandSize = floorArea > 0 ? floorArea + 15 : 40; // 平屋は延床+15坪程度
+            } else if (parkingNeeds === '2台' || parkingNeeds === '3台以上') {
+                minLandSize += 10; // 駐車場複数台で+10坪
+            }
+
+            if (gardenNeeds && (gardenNeeds.includes('菜園') || gardenNeeds.includes('BBQ') || gardenNeeds.includes('ドッグラン'))) {
+                minLandSize += 10; // 庭の活用で+10坪
+            }
+
+            switch (type) {
+                case 'ideal':
+                    priceMultiplier = [0.9, 1.1, 1.2];
+                    sizeRange = [Math.max(minLandSize + 10, 35), Math.max(minLandSize + 20, 45), Math.max(minLandSize + 35, 60)];
+                    gouseAdviceType = 'premium';
+                    break;
+                case 'balance':
+                    priceMultiplier = [0.7, 0.8, 0.9];
+                    sizeRange = [Math.max(minLandSize, 22), Math.max(minLandSize + 6, 28), Math.max(minLandSize + 10, 32)];
+                    gouseAdviceType = 'standard';
+                    break;
+                case 'value':
+                    priceMultiplier = [0.3, 0.5, 0.6];
+                    sizeRange = [Math.max(minLandSize + 5, 30), Math.max(minLandSize + 20, 45), Math.max(minLandSize + 50, 75)];
+                    gouseAdviceType = 'budget';
+                    break;
+            }
+
+            return priceMultiplier.map((mult, idx) => {
+                const price = Math.round(basePrice * mult * sizeRange[idx] / 3.3);
+                const size = sizeRange[idx];
+                return generateSingleLand(prefecture, city, price, size, areaInfo, gouseAdviceType, idx);
+            });
+        }
+
+        function generateSingleLand(prefecture, city, price, size, areaInfo, adviceType, idx) {
+            const areas = {
+                0: ['1丁目', '2丁目', '3丁目'],
+                1: ['中央', '東町', '西町'],
+                2: ['南', '北', '本町']
+            };
+
+            const location = `${city}${areas[idx][idx]}`;
+            const sizeM2 = Math.round(size * 3.3);
+
+            // 学校データ生成
+            const schools = generateSchoolData(city, areaInfo.schools);
+            const facilities = generateFacilitiesData();
+            const ghouseAdvice = generateGhouseAdvice(size, adviceType);
+
+            return {
+                loc: location,
+                price: `${price.toLocaleString()}万円`,
+                size: `${sizeM2}㎡ (${size}坪)`,
+                access: generateAccessData(prefecture, city),
+                school: schools.school,
+                education: schools.education,
+                facilities: facilities,
+                ghouse_advice: ghouseAdvice,
+                highlight: getHighlightLabel(adviceType, idx)
+            };
+        }
+
+        // 提案資料HTML生成
+        function generateProposal(customerName, prefecture, targetCity, landBudget, houseBudget, familyStructure, customerRequirements) {
+            const today = new Date();
+            const formattedDate = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
+            const totalBudget = landBudget + houseBudget;
+            const targetArea = `${prefecture} ${targetCity}`;
+
+            // サポート関数群
+            function generateSchoolData(city, schoolLevel) {
+                const schoolTypes = {
+                    '優秀': { elementary: '市立○○小学校（徒歩5分）', junior: '市立○○中学校（徒歩8分）', education: `${city}の教育環境：学力向上重点校、ICT教育先進、18歳まで医療費助成` },
+                    '優良': { elementary: '市立○○小学校（徒歩7分）', junior: '市立○○中学校（徒歩10分）', education: `${city}の教育環境：中学校給食実施、学童保育充実、15歳まで医療費助成` },
+                    '良好': { elementary: '市立○○小学校（徒歩8分）', junior: '市立○○中学校（徒歩12分）', education: `${city}の教育環境：地域密着教育、図書館充実、中学校卒業まで医療費助成` },
+                    '普通': { elementary: '市立○○小学校（徒歩10分）', junior: '市立○○中学校（徒歩15分）', education: `${city}の教育環境：基本的な教育環境、コミュニティスクール推進` }
+                };
+                const level = schoolTypes[schoolLevel] || schoolTypes['普通'];
+                return {
+                    school: `${level.elementary} / ${level.junior}`,
+                    education: level.education
+                };
+            }
+
+            function generateFacilitiesData() {
+                const convenience = ['セブンイレブン', 'ファミリーマート', 'ローソン'];
+                const supermarkets = ['イオンスタイル', 'ライフ', 'コープ', 'フレスコ', 'イズミヤ'];
+                const others = ['公園', '郵便局', '病院', 'ドラッグストア'];
+
+                return [
+                    `${convenience[Math.floor(Math.random() * convenience.length)]}: ${Math.floor(Math.random() * 200 + 50)}m`,
+                    `${convenience[Math.floor(Math.random() * convenience.length)]}: ${Math.floor(Math.random() * 300 + 150)}m`,
+                    `${supermarkets[Math.floor(Math.random() * supermarkets.length)]}: ${(Math.random() * 2 + 0.5).toFixed(1)}km`,
+                    `○○${others[0]}: ${Math.floor(Math.random() * 400 + 200)}m`,
+                    `市立${others[2]}: ${(Math.random() * 3 + 1.5).toFixed(1)}km`,
+                    `○○${others[1]}: ${Math.floor(Math.random() * 600 + 300)}m`
+                ];
+            }
+
+            function generateAccessData(prefecture, city) {
+                const trainLines = {
+                    '大阪府': ['JR東海道線', '阪急京都線', '阪急宝塚線', '京阪本線', '大阪モノレール'],
+                    '兵庫県': ['JR東海道線', '阪急神戸線', '阪急宝塚線', '阪神本線', '能勢電鉄'],
+                    '京都府': ['JR東海道線', '京阪本線', '阪急京都線', '近鉄京都線', '京都地下鉄'],
+                    '奈良県': ['JR大和路線', '近鉄奈良線', '近鉄橿原線', '近鉄生駒線', 'JR桜井線']
+                };
+                const lines = trainLines[prefecture] || ['JR線'];
+                const line = lines[Math.floor(Math.random() * lines.length)];
+                const station = `${city.slice(0, 2)}駅`;
+                const walkTime = Math.floor(Math.random() * 15 + 5);
+                const busTime = Math.floor(Math.random() * 15 + 8);
+
+                return walkTime <= 12 ? `${line} ${station} 徒歩${walkTime}分` : `${line} ${station} バス${busTime}分`;
+            }
+
+            function generateGhouseAdvice(size, adviceType) {
+                const { buildingType, floorArea, roomCount, parkingNeeds, gardenNeeds } = customerRequirements;
+
+                // お客様要望に基づく延床面積調整
+                const targetFloorArea = floorArea > 0 ? floorArea : Math.round(size * 0.7);
+
+                // 建物タイプ別アドバイス
+                let buildingAdvice = '';
+                if (buildingType === '平屋') {
+                    buildingAdvice = `お客様ご希望の平屋プラン（延床面積約${targetFloorArea}坪）`;
+                } else if (buildingType === '3階建て') {
+                    buildingAdvice = `都市型3階建てプラン（延床面積約${targetFloorArea}坪）`;
+                } else if (buildingType === '2階建て') {
+                    buildingAdvice = `2階建てプラン（延床面積約${targetFloorArea}坪）`;
+                } else {
+                    buildingAdvice = `${size}坪敷地に最適なプラン（延床面積約${targetFloorArea}坪）`;
+                }
+
+                // 駐車場要望反映
+                let parkingAdvice = '';
+                if (parkingNeeds === '2台' || parkingNeeds === '3台以上') {
+                    parkingAdvice = `駐車場${parkingNeeds}対応。`;
+                } else if (parkingNeeds === '1台') {
+                    parkingAdvice = '駐車場1台確保。';
+                }
+
+                // 庭・外構要望反映
+                let gardenAdvice = '';
+                if (gardenNeeds) {
+                    gardenAdvice = `${gardenNeeds}のスペース確保。`;
+                }
+
+                // 部屋数要望反映
+                let roomAdvice = '';
+                if (roomCount) {
+                    roomAdvice = `ご希望の${roomCount}を実現。`;
+                }
+
+                // 敷地面積に応じた具体的な建築提案
+                let structuralAdvice = '';
+                if (size >= 40) {
+                    structuralAdvice = '余裕のある敷地を活かした開放的な住空間設計。';
+                } else if (size >= 30) {
+                    structuralAdvice = '効率的な間取り設計で空間を最大活用。';
+                } else {
+                    structuralAdvice = 'コンパクトながら機能性を重視した設計。';
+                }
+
+                // 建物タイプ別詳細仕様
+                let detailSpec = '';
+                if (buildingType === '平屋') {
+                    detailSpec = '勾配天井でLDK22帖超の大空間、バリアフリー設計、全居室南向き配置。';
+                } else if (buildingType === '3階建て') {
+                    detailSpec = '都市型狭小地対応、スキップフロア採用、屋上庭園オプション。';
+                } else {
+                    detailSpec = 'LDK20帖以上確保、吹抜けで開放感演出、小屋裏収納活用。';
+                }
+
+                const adviceTemplates = {
+                    premium: `【Gハウス プレミアム仕様】${buildingAdvice}を提案。${structuralAdvice}${detailSpec}${parkingAdvice}${gardenAdvice}${roomAdvice}■標準装備：ZEH+認定、全館空調システム（エアロテック）、太陽光発電10kW+大容量蓄電池、エコキュート、床暖房、樹脂サッシ（APW430）、制震ダンパー、長期優良住宅認定対応。■光熱費：月額平均8,000円（売電収入込み）`,
+                    standard: `【Gハウス スタンダード仕様】${buildingAdvice}。${structuralAdvice}${detailSpec}${parkingAdvice}${gardenAdvice}${roomAdvice}■標準装備：ZEH認定、高断熱仕様（UA値0.46）、太陽光発電6kW、エコキュート、樹脂サッシ（APW330）、24時間換気システム、長期優良住宅認定対応。■光熱費：月額平均12,000円（売電収入込み）`,
+                    budget: `【Gハウス コストパフォーマンス仕様】${buildingAdvice}。${structuralAdvice}${detailSpec}${parkingAdvice}${gardenAdvice}${roomAdvice}■標準装備：省エネ等級4、高断熱仕様（UA値0.56）、太陽光発電4kW、エコキュート、樹脂サッシ、24時間換気システム。土地代節約分を高性能設備に投資し、快適性とコスト効率を両立。■光熱費：月額平均15,000円（売電収入込み）`
+                };
+                return adviceTemplates[adviceType] || adviceTemplates.standard;
+            }
+
+            function getHighlightLabel(adviceType, idx) {
+                const labels = {
+                    premium: ['理想の住環境', '上質な暮らし', 'プレミアム立地'],
+                    standard: ['駅近便利', '文教地区', 'バランス重視'],
+                    budget: ['自然豊か', '設備充実', 'コスパ最強']
+                };
+                return labels[adviceType]?.[idx] || '住環境良好';
+            }
+
+            // エリア分析と予算アドバイス
+            function generateAreaAnalysis(prefecture, city, budget) {
+                const areaInfo = areaDatabase[prefecture]?.[city];
+                if (!areaInfo) {
+                    return {
+                        feasibility: '不明',
+                        advice: 'エリア情報が不足しています。詳細は営業担当者にお問い合わせください。',
+                        alternatives: []
+                    };
+                }
+
+                const avgLandPrice = areaInfo.avgPrice * 30; // 30坪想定
+                const feasibility = budget >= avgLandPrice ? '適正' : budget >= avgLandPrice * 0.7 ? '検討可能' : '厳しい';
+
+                let advice = '';
+                let alternatives = [];
+
+                if (feasibility === '適正') {
+                    advice = `${city}での土地購入は予算内で十分可能です。${areaInfo.features}の特色を活かした理想の住まいづくりができます。`;
+                } else if (feasibility === '検討可能') {
+                    advice = `${city}での土地購入は可能ですが、土地面積を調整するか建物予算とのバランスを検討することをお勧めします。`;
+                } else {
+                    advice = `現在の予算では${city}での土地購入は困難です。以下の代替エリアをご検討ください。`;
+                    // 代替エリア提案
+                    Object.entries(areaDatabase[prefecture] || {}).forEach(([altCity, altInfo]) => {
+                        if (altInfo.avgPrice * 30 <= budget && altCity !== city) {
+                            alternatives.push({
+                                city: altCity,
+                                price: altInfo.avgPrice,
+                                features: altInfo.features,
+                                savings: Math.round((areaInfo.avgPrice - altInfo.avgPrice) * 30)
+                            });
+                        }
+                    });
+                    alternatives.sort((a, b) => b.price - a.price).slice(0, 3);
+                }
+
+                return { feasibility, advice, alternatives, areaInfo };
+            }
+
+            // 動的土地データ生成
+            const areaAnalysis = generateAreaAnalysis(prefecture, targetCity, landBudget);
+            const idealProposals = generateLandData(prefecture, targetCity, landBudget, 'ideal');
+            const balanceProposals = generateLandData(prefecture, targetCity, landBudget, 'balance');
+            const valueProposals = generateLandData(prefecture, targetCity, landBudget, 'value');
+
+            return `
+            <div class="proposal-a3">
+                <header>
+                    <h1>LAND PROPOSAL</h1>
+                    <p class="sub-title">${customerName} 様専用　理想の土地ご提案書</p>
+                    <div class="text-sm mt-3 text-gray-600 flex justify-center space-x-6">
+                        <span><i class="fas fa-map-marker-alt mr-1"></i>${targetArea}</span>
+                        <span><i class="fas fa-yen-sign mr-1"></i>土地予算 ${landBudget}万円</span>
+                        <span><i class="fas fa-users mr-1"></i>${familyStructure}</span>
+                        <span><i class="fas fa-calendar mr-1"></i>${formattedDate}</span>
+                    </div>
+                    ${areaAnalysis.feasibility !== '適正' ? `
+                    <div class="mt-3 p-2 bg-orange-50 border border-orange-200 rounded text-xs text-center">
+                        <strong class="text-orange-700">エリア予算分析：</strong>
+                        <span class="text-orange-600">${areaAnalysis.advice}</span>
+                    </div>` : ''}
+                </header>
+
+                <main>
+                    <section class="print-section">
+                        <h2><i class="fas fa-crown icon"></i>１．理想のライフスタイル実現プラン</h2>
+                        <div class="section-grid">
+                            ${idealProposals.map(p => `
+                                <div class="property-card">
+                                    <div class="card-header">
+                                        ${p.loc}
+                                        <span class="highlight-badge badge-recommended">${p.highlight}</span>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="price">${p.price} / ${p.size}</div>
+                                        <div class="info-box">
+                                            <strong>交通：</strong>${p.access}
+                                        </div>
+                                        <div class="info-box">
+                                            <strong>学校：</strong>${p.school}
+                                        </div>
+                                        <div class="info-box">
+                                            <strong>教育：</strong>${p.education}
+                                        </div>
+                                        <div class="info-box">
+                                            <strong>周辺施設：</strong>
+                                            <div class="facilities-grid">
+                                                ${p.facilities.map(f => `<div class="facility-item">${f}</div>`).join('')}
+                                            </div>
+                                        </div>
+                                        <div class="info-box">
+                                            <strong>Gハウス建築提案：</strong>${p.ghouse_advice}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+
+                    <section class="print-section">
+                        <h2><i class="fas fa-balance-scale icon"></i>２．予算バランス重視プラン</h2>
+                        <div class="section-grid">
+                            ${balanceProposals.map(p => `
+                                <div class="property-card">
+                                    <div class="card-header">
+                                        ${p.loc}
+                                        <span class="highlight-badge badge-practical">${p.highlight}</span>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="price">${p.price} / ${p.size}</div>
+                                        <div class="info-box">
+                                            <strong>交通：</strong>${p.access}
+                                        </div>
+                                        <div class="info-box">
+                                            <strong>学校：</strong>${p.school}
+                                        </div>
+                                        <div class="info-box">
+                                            <strong>教育：</strong>${p.education}
+                                        </div>
+                                        <div class="info-box">
+                                            <strong>周辺施設：</strong>
+                                            <div class="facilities-grid">
+                                                ${p.facilities.map(f => `<div class="facility-item">${f}</div>`).join('')}
+                                            </div>
+                                        </div>
+                                        <div class="info-box">
+                                            <strong>Gハウス建築提案：</strong>${p.ghouse_advice}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+
+                    <section class="print-section">
+                        <h2><i class="fas fa-gem icon"></i>３．建物充実・お得プラン</h2>
+                        <div class="section-grid">
+                            ${valueProposals.map(p => `
+                                <div class="property-card">
+                                    <div class="card-header">
+                                        ${p.loc}
+                                        <span class="highlight-badge badge-value">${p.highlight}</span>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="price">${p.price} / ${p.size}</div>
+                                        <div class="info-box">
+                                            <strong>交通：</strong>${p.access}
+                                        </div>
+                                        <div class="info-box">
+                                            <strong>学校：</strong>${p.school}
+                                        </div>
+                                        <div class="info-box">
+                                            <strong>教育：</strong>${p.education}
+                                        </div>
+                                        <div class="info-box">
+                                            <strong>周辺施設：</strong>
+                                            <div class="facilities-grid">
+                                                ${p.facilities.map(f => `<div class="facility-item">${f}</div>`).join('')}
+                                            </div>
+                                        </div>
+                                        <div class="info-box">
+                                            <strong>Gハウス建築提案：</strong>${p.ghouse_advice}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+
+                    <section class="print-section">
+                        <h2><i class="fas fa-home icon"></i>３．Gハウス建築仕様のご提案</h2>
+                        <div class="building-spec-section">
+                            ${customerRequirements.buildingType ? `
+                            <div class="spec-card">
+                                <h3 class="spec-title"><i class="fas fa-blueprint mr-2"></i>${customerRequirements.buildingType}プラン詳細仕様</h3>
+                                <div class="spec-grid">
+                                    <div class="spec-item">
+                                        <strong>構造・工法：</strong>木造軸組工法＋制震ダンパー（evoltz）、基礎：ベタ基礎（配筋D13@200）
+                                    </div>
+                                    <div class="spec-item">
+                                        <strong>断熱性能：</strong>UA値0.46（ZEH基準）、充填断熱＋外張断熱のW断熱工法
+                                    </div>
+                                    <div class="spec-item">
+                                        <strong>開口部：</strong>樹脂サッシ（APW330/430）、Low-E複層ガラス、玄関ドア：断熱仕様
+                                    </div>
+                                    <div class="spec-item">
+                                        <strong>気密性能：</strong>C値1.0以下保証、全棟気密測定実施
+                                    </div>
+                                </div>
+                            </div>` : ''}
+
+                            <div class="spec-card">
+                                <h3 class="spec-title"><i class="fas fa-leaf mr-2"></i>省エネ・環境性能</h3>
+                                <div class="spec-grid">
+                                    <div class="spec-item">
+                                        <strong>太陽光発電：</strong>${customerRequirements.priorities === 'コスト重視' ? '4kW' : customerRequirements.priorities === '将来性' ? '10kW+蓄電池' : '6kW'}システム、パワーコンディショナー10年保証
+                                    </div>
+                                    <div class="spec-item">
+                                        <strong>給湯：</strong>エコキュート（三菱・ダイキン製）460L、10年保証
+                                    </div>
+                                    <div class="spec-item">
+                                        <strong>換気：</strong>24時間計画換気システム第3種、熱交換型換気（オプション）
+                                    </div>
+                                    <div class="spec-item">
+                                        <strong>BELS評価：</strong>★★★★★（最高等級）、長期優良住宅認定標準対応
+                                    </div>
+                                </div>
+                            </div>
+
+                            ${customerRequirements.floorArea > 0 ? `
+                            <div class="spec-card">
+                                <h3 class="spec-title"><i class="fas fa-ruler-combined mr-2"></i>間取りプラン（延床面積 約${customerRequirements.floorArea}坪）</h3>
+                                <div class="floor-plan-grid">
+                                    ${customerRequirements.buildingType === '平屋' ? `
+                                    <div class="floor-plan">
+                                        <strong>1階（約${customerRequirements.floorArea}坪）：</strong>
+                                        LDK22帖、主寝室8帖、個室6帖×${customerRequirements.roomCount?.includes('3') ? '2' : customerRequirements.roomCount?.includes('4') ? '3' : '1'}、
+                                        洗面脱衣室、バス・トイレ、SIC、パントリー
+                                    </div>` : customerRequirements.buildingType === '3階建て' ? `
+                                    <div class="floor-plan">
+                                        <strong>1階（約${Math.round(customerRequirements.floorArea * 0.3)}坪）：</strong>玄関、水回り、駐車場<br>
+                                        <strong>2階（約${Math.round(customerRequirements.floorArea * 0.4)}坪）：</strong>LDK20帖、水回り<br>
+                                        <strong>3階（約${Math.round(customerRequirements.floorArea * 0.3)}坪）：</strong>主寝室、個室×2、バルコニー
+                                    </div>` : `
+                                    <div class="floor-plan">
+                                        <strong>1階（約${Math.round(customerRequirements.floorArea * 0.5)}坪）：</strong>LDK20帖、水回り、洗面脱衣室<br>
+                                        <strong>2階（約${Math.round(customerRequirements.floorArea * 0.5)}坪）：</strong>主寝室8帖、個室6帖×${customerRequirements.roomCount?.includes('3') ? '2' : customerRequirements.roomCount?.includes('4') ? '3' : '1'}
+                                    </div>`}
+                                    ${customerRequirements.parkingNeeds ? `
+                                    <div class="parking-spec">
+                                        <strong>駐車場：</strong>${customerRequirements.parkingNeeds}（間口2.5m×奥行5.0m/台）
+                                        ${customerRequirements.parkingNeeds === '2台' || customerRequirements.parkingNeeds === '3台以上' ? '、並列駐車可能な設計' : ''}
+                                    </div>` : ''}
+                                    ${customerRequirements.gardenNeeds ? `
+                                    <div class="garden-spec">
+                                        <strong>庭・外構：</strong>${customerRequirements.gardenNeeds}、人工芝またはタイルデッキ、植栽、照明、立水栓
+                                    </div>` : ''}
+                                </div>
+                            </div>` : ''}
+
+                            <div class="spec-card">
+                                <h3 class="spec-title"><i class="fas fa-yen-sign mr-2"></i>光熱費シミュレーション（年間）</h3>
+                                <div class="cost-simulation">
+                                    <div class="cost-grid">
+                                        <div class="cost-item">
+                                            <div class="cost-label">従来住宅</div>
+                                            <div class="cost-value traditional">年間約24万円</div>
+                                        </div>
+                                        <div class="cost-arrow">→</div>
+                                        <div class="cost-item">
+                                            <div class="cost-label">Gハウス</div>
+                                            <div class="cost-value ghouse">${customerRequirements.priorities === 'コスト重視' ? '年間約18万円' : customerRequirements.priorities === '将来性' ? '年間約9万円' : '年間約14万円'}</div>
+                                        </div>
+                                        <div class="cost-arrow">💰</div>
+                                        <div class="cost-item">
+                                            <div class="cost-label">年間削減額</div>
+                                            <div class="cost-value saving">${customerRequirements.priorities === 'コスト重視' ? '約6万円' : customerRequirements.priorities === '将来性' ? '約15万円' : '約10万円'}</div>
+                                        </div>
+                                    </div>
+                                    <div class="cost-note">
+                                        ※売電収入含む。※電気・ガス・上下水道の合計。※4人家族想定。
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="print-section">
+                        <h2><i class="fas fa-lightbulb icon"></i>４．${customerName}様への最適提案</h2>
+                        <div class="summary-section">
+                            <div class="grid grid-cols-3 gap-6 mb-6">
+                                <div class="text-center p-4 bg-white rounded-xl shadow-md">
+                                    <div class="text-lg font-bold text-blue-600">土地予算</div>
+                                    <div class="text-3xl font-bold text-gray-800">${landBudget}万円</div>
+                                </div>
+                                <div class="text-center p-4 bg-white rounded-xl shadow-md">
+                                    <div class="text-lg font-bold text-green-600">建物予算</div>
+                                    <div class="text-3xl font-bold text-gray-800">${houseBudget}万円</div>
+                                </div>
+                                <div class="text-center p-4 bg-white rounded-xl shadow-md">
+                                    <div class="text-lg font-bold text-purple-600">総予算</div>
+                                    <div class="text-3xl font-bold text-gray-800">${totalBudget}万円</div>
+                                </div>
+                            </div>
+
+                            <div class="text-base leading-relaxed">
+                                <div class="leading-relaxed text-xs">
+                                    <strong class="text-blue-600">${customerName}様（${familyStructure}）</strong>の理想の住まいづくりプラン：
+                                    <br><br>
+                                    ${customerRequirements.buildingType ? `<div class="p-1 bg-blue-50 rounded mb-1"><strong>建物タイプ：</strong>${customerRequirements.buildingType}をご希望のため、それに最適な敷地選びを重視した提案となっています。</div>` : ''}
+                                    ${customerRequirements.floorArea > 0 ? `<div class="p-1 bg-green-50 rounded mb-1"><strong>延床面積：</strong>約${customerRequirements.floorArea}坪をご希望のため、建築基準法の建ぺい率・容積率を考慮した敷地を選定しています。</div>` : ''}
+                                    ${customerRequirements.priorities ? `<div class="p-1 bg-yellow-50 rounded mb-1"><strong>重視ポイント：</strong>${customerRequirements.priorities}を最優先に、エリア選択と土地条件を調整しています。</div>` : ''}
+                                    ${customerRequirements.parkingNeeds ? `<div class="p-1 bg-purple-50 rounded mb-1"><strong>駐車場：</strong>${customerRequirements.parkingNeeds}が確保できる敷地形状・面積を前提としています。</div>` : ''}
+                                    ${customerRequirements.gardenNeeds ? `<div class="p-1 bg-orange-50 rounded mb-1"><strong>庭・外構：</strong>${customerRequirements.gardenNeeds}が実現できる余裕のある敷地を優先的に選定しています。</div>` : ''}
+                                    ${customerRequirements.roomCount ? `<div class="p-1 bg-pink-50 rounded mb-1"><strong>間取り：</strong>${customerRequirements.roomCount}をご希望のため、それが実現可能な建物規模を想定した土地を提案しています。</div>` : ''}
+                                    ${customerRequirements.uploadedFiles > 0 ? `<div class="p-1 bg-gray-50 rounded mb-1"><strong>ヒアリングシート：</strong>${customerRequirements.uploadedFiles}件のPDF資料を参考に、詳細なご要望を反映した提案を作成しています。</div>` : ''}
+                                </div>
+
+                                <div class="grid grid-cols-3 gap-2 mt-4">
+                                    <div class="bg-amber-50 p-2 rounded-lg">
+                                        <h3 class="font-bold text-amber-700 mb-1 text-xs">理想追求型 ${customerRequirements.priorities === '自然環境' || customerRequirements.priorities === '教育環境' ? '✓推奨' : ''}</h3>
+                                        <p class="text-xs">広い敷地と良好な住環境で、お子様の成長に最適。長期的な資産価値と住み心地を両立。</p>
+                                    </div>
+                                    <div class="bg-blue-50 p-2 rounded-lg">
+                                        <h3 class="font-bold text-blue-700 mb-1 text-xs">バランス重視型 ${customerRequirements.priorities === '通勤利便性' || customerRequirements.priorities === '買い物利便性' ? '✓推奨' : ''}</h3>
+                                        <p class="text-xs">利便性と住環境のバランス。駅近立地で将来の資産価値維持に有利。</p>
+                                    </div>
+                                    <div class="bg-green-50 p-2 rounded-lg">
+                                        <h3 class="font-bold text-green-700 mb-1 text-xs">建物充実型 ${customerRequirements.priorities === 'コスト重視' || customerRequirements.priorities === '将来性' ? '✓推奨' : ''}</h3>
+                                        <p class="text-xs">土地代抑制で高性能住宅や充実設備に投資。長期的な光熱費削減と快適性向上。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    ${areaAnalysis.alternatives.length > 0 ? `
+                    <div class="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <h3 class="font-bold text-green-800 mb-2"><i class="fas fa-lightbulb mr-2"></i>代替エリア提案</h3>
+                        ${areaAnalysis.alternatives.map(alt => `
+                            <div class="text-xs mb-1">
+                                <strong class="text-green-700">${alt.city}：</strong>
+                                ${alt.features}（予算節約：約${alt.savings}万円）
+                            </div>
+                        `).join('')}
+                    </div>` : ''}
+
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <h3 class="font-bold text-blue-800 mb-2"><i class="fas fa-search mr-2"></i>土地探しのポイント</h3>
+                        <div class="grid grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <strong class="text-blue-700">推奨サイト：</strong>
+                                SUUMO、ホームズ、アットホーム
+                            </div>
+                            <div>
+                                <strong class="text-blue-700">検索条件：</strong>
+                                ${targetArea}周辺、〜${landBudget}万円、建築条件なし
+                            </div>
+                        </div>
+                        <div class="mt-2 text-xs">
+                            <strong class="text-blue-700">エリア特性：</strong>
+                            ${areaAnalysis.areaInfo?.features || '地域の詳細情報は営業担当者にお問い合わせください'}
+                        </div>
+                    </div>
+                </main>
+
+                <footer class="disclaimer">
+                    ※掲載の土地情報は${formattedDate}時点の参考情報です。実際の販売状況・価格は変動する可能性があります。
+                    ※古家付土地の場合、解体費用（150-300万円程度）が別途必要です。※建築費用は仕様・グレードにより変動します。
+                    ※この提案書は${customerName}様専用に作成されています。
+                </footer>
+            </div>`;
+        }
+    </script>
+</body>
+</html>
